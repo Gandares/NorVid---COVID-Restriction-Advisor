@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1029679028343",
+    "project_id": "norvid-2021",
+    "storage_bucket": "norvid-2021.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1029679028343:android:cb2cb051d817067e7c8e72",
+        "android_client_info": {
+          "package_name": "com.example.norvid"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1029679028343-up4rtb4229c1kp45ashcutvib3mufecr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDkYh_v2RG0-pmXILKaHi0jSfsjxyLKv0M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1029679028343-up4rtb4229c1kp45ashcutvib3mufecr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
