@@ -10,6 +10,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Build;
+import android.os.Looper;
 import android.util.Log;
 import android.widget.Button;
 import android.view.View;
@@ -41,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
     private final FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private static final String TAG = "DocSnippets";
-    public static final int DEFAULT_UPDATE_INTERVAL = 30;
+    public static final int DEFAULT_UPDATE_INTERVAL = 20;
     public static final int FAST_UPDATE_INTERVAL = 5;
     private static final int PERMISSIONS_FINE_LOCATION = 99;
 
@@ -65,41 +66,35 @@ public class MainActivity extends AppCompatActivity {
         address = findViewById(R.id.address);
 
         // set all properties of LocationRequest
-
-        locationRequest = new LocationRequest();
-        // How often does the default location check occur
-        locationRequest.setInterval(DEFAULT_UPDATE_INTERVAL * 1000);
+        locationRequest = LocationRequest.create();
         // How often does the location check occur when set to the most frequent update
-        locationRequest.setFastestInterval(FAST_UPDATE_INTERVAL * 1000);
-        locationRequest.setPriority(locationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        // How often does the default location check occur
+        locationRequest.setInterval(FAST_UPDATE_INTERVAL * 1000);
         // Event that is triggered whenever the update interval is met
         locationCallback = new LocationCallback() {
 
             @Override
-            public void onLocationResult(@NonNull LocationResult locationResult) {
-                super.onLocationResult(locationResult);
-
-                updateUIValues(locationResult.getLastLocation());
+            public void onLocationResult(LocationResult locationResult) {
+                if (locationResult == null) {
+                    return;
+                }
+                for (Location location : locationResult.getLocations()) {
+                    if (location != null) {
+                        updateUIValues(location);
+                    }
+                }
             }
         };
-
-        /*if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, null);
-        }*/
-
-        /*sw_gps.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(view v) {
-                if(sw_gps.isChecked()) {
-                    locationRequest.setPriority(locationRequest.PRIORITY_HIGH_ACCURACY);
-                    tv_sensor.setText("Using GPS sensors");
-                }
-                else{
-                    locationRequest.setPriority(locationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-                    tv_sensor.setText("Using Towers + WIFI");
-                }
+        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(MainActivity.this);
+            fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
+        }
+        else{
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                requestPermissions(new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_FINE_LOCATION);
             }
-        })*/
+        }
 
         // Evento google analytics
         Bundle bundle = new Bundle();
@@ -107,7 +102,6 @@ public class MainActivity extends AppCompatActivity {
         mFirebaseAnalytics.logEvent("InitScreen", bundle);
 
         //setup();
-        updateGPS();
     }
 
     @Override
@@ -117,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
         switch (requestCode) {
             case PERMISSIONS_FINE_LOCATION:
             if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                updateGPS();
+                startGPSLoop();
             }
             else{
                 Toast.makeText(this, "This app requires permission to be granted in order to work properly", Toast.LENGTH_SHORT).show();
@@ -127,36 +121,19 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void updateGPS() {
-
+    private void startGPSLoop(){
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(MainActivity.this);
-
-        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            // User provided the permission
-            fusedLocationProviderClient.getLastLocation().addOnSuccessListener(this, new OnSuccessListener<Location>() {
-                @Override
-                public void onSuccess(Location location) {
-                    // We got permissions. Show values
-                    updateUIValues(location);
-                }
-            });
-        }
-        else{
-            // Permissions not granted yet
-
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                requestPermissions(new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_FINE_LOCATION);
-            }
-        }
+        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+            fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
     }
 
     private void updateUIValues(Location location){
-        lat.setText(String.valueOf(location.getLatitude()));
-        lon.setText(String.valueOf(location.getLongitude()));
-
-        Geocoder geocoder = new Geocoder(MainActivity.this);
-
         try {
+            lat.setText(String.valueOf(location.getLatitude()));
+            lon.setText(String.valueOf(location.getLongitude()));
+
+            Geocoder geocoder = new Geocoder(MainActivity.this);
+
             List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
             // getCountryName, getLocality, getAddressLine
             address.setText(addresses.get(0).getAddressLine(0));
