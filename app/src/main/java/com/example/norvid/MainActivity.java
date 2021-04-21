@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.view.View;
 
 import android.os.Bundle;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,9 +25,7 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.firestore.DocumentReference;
@@ -36,6 +35,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -46,7 +47,8 @@ public class MainActivity extends AppCompatActivity {
     public static final int FAST_UPDATE_INTERVAL = 5;
     private static final int PERMISSIONS_FINE_LOCATION = 99;
 
-    TextView lat, lon, address;
+    TextView ccaa, mun, prov, address, restriction;
+    EditText tdqueda;
 
     // Google's API for location service
     FusedLocationProviderClient fusedLocationProviderClient;
@@ -61,9 +63,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        lat = findViewById(R.id.lat);
-        lon = findViewById(R.id.lon);
+        ccaa = findViewById(R.id.ccaa);
+        prov = findViewById(R.id.prov);
+        mun = findViewById(R.id.mun);
         address = findViewById(R.id.address);
+        restriction = findViewById(R.id.restriction);
+        tdqueda = findViewById(R.id.bbddtext);
+
 
         // set all properties of LocationRequest
         locationRequest = LocationRequest.create();
@@ -101,7 +107,8 @@ public class MainActivity extends AppCompatActivity {
         bundle.putString("message", "Aplicación abierta");
         mFirebaseAnalytics.logEvent("InitScreen", bundle);
 
-        //setup();
+        setup();
+        showData();
     }
 
     @Override
@@ -129,17 +136,42 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateUIValues(Location location){
         try {
-            lat.setText(String.valueOf(location.getLatitude()));
-            lon.setText(String.valueOf(location.getLongitude()));
 
             Geocoder geocoder = new Geocoder(MainActivity.this);
 
             List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
             // getCountryName, getLocality, getAddressLine
             address.setText(addresses.get(0).getAddressLine(0));
+            mun.setText(addresses.get(0).getSubAdminArea());
+            prov.setText(addresses.get(0).getLocality());
+            ccaa.setText(addresses.get(0).getAdminArea());
+
         } catch(Exception e){
             address.setText("No se encontró la ubicación");
         }
+    }
+
+
+    private void showData() {
+        new Timer().scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                DocumentReference docRef = db.collection("Provincias").document(mun.getText().toString());
+                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists())
+                                restriction.setText("Toque de queda: " + document.getData().get("Toque de queda").toString());
+                            else
+                                restriction.setText("Cargando restricción...");
+                        } else
+                            restriction.setText("Fallo en la petición a la base de datos...");
+                    }
+                });
+            }
+        }, 0, 3000);
     }
 
     private void setup(){
@@ -173,13 +205,12 @@ public class MainActivity extends AppCompatActivity {
                });*/
 
                // ADD
-               /*
-               Map<String, Object> data = new HashMap<>();
-               data.put("Toque de queda", 22);
-               data.put("Frontera", "Cerrada");
 
-               DocumentReference lmao = db.collection("Zona").document("Granada");
-               lmao.set(data);*/
+               Map<String, Object> data = new HashMap<>();
+               data.put("Toque de queda", tdqueda.getText().toString());
+
+               DocumentReference dbField = db.collection("Provincias").document(mun.getText().toString());
+               dbField.set(data);
 
                // UPDATE
                /*
