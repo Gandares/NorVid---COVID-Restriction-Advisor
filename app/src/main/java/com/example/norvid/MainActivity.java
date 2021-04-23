@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
+import android.content.ClipData;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -12,6 +14,9 @@ import android.location.Location;
 import android.os.Build;
 import android.os.Looper;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.Button;
 import android.view.View;
 
@@ -27,6 +32,7 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -49,6 +55,10 @@ public class MainActivity extends AppCompatActivity {
 
     TextView ccaa, mun, prov, address, restriction;
     EditText tdqueda;
+    BottomNavigationView botNav;
+
+    Timer timer;
+
 
     // Google's API for location service
     FusedLocationProviderClient fusedLocationProviderClient;
@@ -68,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
         mun = findViewById(R.id.mun);
         address = findViewById(R.id.address);
         restriction = findViewById(R.id.restriction);
-        tdqueda = findViewById(R.id.bbddtext);
+        botNav = findViewById(R.id.bottom_navigation);
 
 
         // set all properties of LocationRequest
@@ -107,8 +117,12 @@ public class MainActivity extends AppCompatActivity {
         bundle.putString("message", "Aplicación abierta");
         mFirebaseAnalytics.logEvent("InitScreen", bundle);
 
-        setup();
         showData();
+
+        botNav.setOnNavigationItemSelectedListener( item -> {
+            return navigation(item);
+        });
+
     }
 
     @Override
@@ -136,14 +150,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateUIValues(Location location){
         try {
-
             Geocoder geocoder = new Geocoder(MainActivity.this);
 
             List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
             // getCountryName, getLocality, getAddressLine
             address.setText(addresses.get(0).getAddressLine(0));
-            mun.setText(addresses.get(0).getSubAdminArea());
-            prov.setText(addresses.get(0).getLocality());
+            prov.setText(addresses.get(0).getSubAdminArea());
+            mun.setText(addresses.get(0).getLocality());
             ccaa.setText(addresses.get(0).getAdminArea());
 
         } catch(Exception e){
@@ -153,70 +166,45 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void showData() {
-        new Timer().scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                DocumentReference docRef = db.collection("Provincias").document(mun.getText().toString());
-                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            DocumentSnapshot document = task.getResult();
-                            if (document.exists())
-                                restriction.setText("Toque de queda: " + document.getData().get("Toque de queda").toString());
-                            else
-                                restriction.setText("Cargando restricción...");
-                        } else
-                            restriction.setText("Fallo en la petición a la base de datos...");
-                    }
-                });
+        timer = new Timer();
+            timer.scheduleAtFixedRate(new TimerTask() {
+        @Override
+        public void run() {
+            Log.d(TAG, "update");
+            DocumentReference docRef = db.collection("Provincias").document(mun.getText().toString());
+            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists())
+                            restriction.setText("Toque de queda: " + document.getData().get("Toque de queda").toString());
+                        else
+                            restriction.setText("Cargando restricción...");
+                    } else
+                        restriction.setText("Fallo en la petición a la base de datos...");
+                }
+            });
             }
-        }, 0, 3000);
+        }, 0, 5000);
     }
 
-    private void setup(){
+    public boolean navigation(MenuItem item){
+        switch (item.getItemId()) {
+            case R.id.coronavirus:
+                Log.d(TAG, "corona");
+                return true;
 
-        Button button = (Button) findViewById(R.id.savebutton);
-        button.setOnClickListener(new View.OnClickListener(){
-           public void onClick(View v){
+            case R.id.upload:
+                timer.cancel();
+                timer.purge();
+                Log.d(TAG, "upload");
+                Intent myIntent = new Intent(this, InsertRestrictions.class);
+                this.startActivity(myIntent);
+                return true;
 
-               //  DELETE
-               /*
-               db.collection("Zona").document("Granada")
-                       .delete();
-               */
-               // GET
-               /*
-               DocumentReference docRef = db.collection("Zona").document("Granada");
-               docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                   @Override
-                   public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                       if (task.isSuccessful()) {
-                           DocumentSnapshot document = task.getResult();
-                           if (document.exists()) {
-                               Log.d(TAG, "DocumentSnapshot data: " + document.getData());
-                           } else {
-                               Log.d(TAG, "No such document");
-                           }
-                       } else {
-                           Log.d(TAG, "get failed with ", task.getException());
-                       }
-                   }
-               });*/
-
-               // ADD
-
-               Map<String, Object> data = new HashMap<>();
-               data.put("Toque de queda", tdqueda.getText().toString());
-
-               DocumentReference dbField = db.collection("Provincias").document(mun.getText().toString());
-               dbField.set(data);
-
-               // UPDATE
-               /*
-               lmao.update("Frontera", "Abierta");
-                */
-           }
-        });
+            default:
+                return true;
+        }
     }
 }
