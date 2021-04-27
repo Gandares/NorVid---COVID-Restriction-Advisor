@@ -2,12 +2,15 @@ package com.example.norvid;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
 import android.content.ClipData;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -17,11 +20,14 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.view.View;
 
 import android.os.Bundle;
 import android.widget.EditText;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,13 +40,19 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -52,10 +64,13 @@ public class MainActivity extends AppCompatActivity {
     public static final int DEFAULT_UPDATE_INTERVAL = 20;
     public static final int FAST_UPDATE_INTERVAL = 5;
     private static final int PERMISSIONS_FINE_LOCATION = 99;
+    private static String[] MUNLIST;
 
     TextView ccaa, mun, prov, address, restriction;
     EditText tdqueda;
     BottomNavigationView botNav;
+    String municipio;
+
 
     Timer timer;
 
@@ -79,6 +94,23 @@ public class MainActivity extends AppCompatActivity {
         address = findViewById(R.id.address);
         restriction = findViewById(R.id.restriction);
         botNav = findViewById(R.id.bottom_navigation);
+
+        db.collection("Provincias").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task){
+                ArrayList<String> munAux = new ArrayList<>();
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        munAux.add(document.getId());
+                    }
+                } else {
+                    Log.d(TAG, "Error getting documents: ", task.getException());
+                }
+                String auxString;
+                auxString=munAux.toString().substring(1,munAux.toString().length()-1);
+                MUNLIST = auxString.split(", ");
+            }
+        });
 
 
         // set all properties of LocationRequest
@@ -117,12 +149,14 @@ public class MainActivity extends AppCompatActivity {
         bundle.putString("message", "Aplicación abierta");
         mFirebaseAnalytics.logEvent("InitScreen", bundle);
 
+        municipio = mun.getText().toString();
+
         showData();
+        //setupArrays();
 
         botNav.setOnNavigationItemSelectedListener( item -> {
             return navigation(item);
         });
-
     }
 
     @Override
@@ -170,8 +204,7 @@ public class MainActivity extends AppCompatActivity {
             timer.scheduleAtFixedRate(new TimerTask() {
         @Override
         public void run() {
-            Log.d(TAG, "update");
-            DocumentReference docRef = db.collection("Provincias").document(mun.getText().toString());
+            DocumentReference docRef = db.collection("Provincias").document(municipio);
             docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -206,5 +239,42 @@ public class MainActivity extends AppCompatActivity {
             default:
                 return true;
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        getMenuInflater().inflate(R.menu.search_menu, menu);
+        SearchView searchView = (SearchView) menu.findItem(R.id.search_icon).getActionView();
+        searchView.setQueryHint("Municipio");
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                municipio = query;
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+
+        searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
+            @Override
+            public boolean onSuggestionClick(int position) {
+                /*Cursor cursor = (Cursor) mAdapter.getItem(position);
+                String txt = cursor.getString(cursor.getColumnIndex("cityName"));
+                searchView.setQuery(munList.get(position),true);*/
+                return true;
+            }
+
+            @Override
+            public boolean onSuggestionSelect(int position) {
+                //searchView.setQuery(munList.get(position),true);
+                return true;
+            }
+        });
+        return super.onCreateOptionsMenu(menu);
     }
 }
