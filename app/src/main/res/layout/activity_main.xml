@@ -10,7 +10,7 @@
         android:id="@+id/restriction"
         android:layout_width="312dp"
         android:layout_height="47dp"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="300dp"
         android:text="Cargando restricción..."
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
@@ -49,6 +49,36 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
+        android:id="@+id/textView2"
+        android:layout_width="204dp"
+        android:layout_height="28dp"
+        android:layout_marginTop="50dp"
+        android:text="Comunidad autonoma"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="94dp"
+        android:layout_height="26dp"
+        android:layout_marginTop="100dp"
+        android:text="Provincia"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="104dp"
+        android:layout_height="25dp"
+        android:layout_marginTop="150dp"
+        android:text="Municipio"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
         android:id="@+id/address"
         android:layout_width="278dp"
         android:layout_height="46dp"
@@ -62,7 +92,9 @@
         android:id="@+id/fl_wrapper"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/bottom_navigation"/>
+        android:layout_above="@id/bottom_navigation">
+
+    </FrameLayout>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
@@ -72,5 +104,32 @@
         app:itemTextColor="#fff"
         app:layout_constraintBottom_toBottomOf="@+id/fl_wrapper"
         app:menu="@menu/nav_menu" />
+
+    <SearchView
+        android:id="@+id/CCAAView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="42dp"
+        app:layout_constraintStart_toEndOf="@+id/textView2"
+        app:layout_constraintTop_toTopOf="parent"
+        android:maxWidth="200dp"/>
+
+    <SearchView
+        android:id="@+id/ProvView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="95dp"
+        app:layout_constraintStart_toEndOf="@+id/textView3"
+        app:layout_constraintTop_toTopOf="parent"
+        android:maxWidth="310dp"/>
+
+    <SearchView
+        android:id="@+id/MunView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="145dp"
+        app:layout_constraintStart_toEndOf="@+id/textView4"
+        app:layout_constraintTop_toTopOf="parent"
+        android:maxWidth="300dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

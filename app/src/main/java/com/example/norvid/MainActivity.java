@@ -65,11 +65,15 @@ public class MainActivity extends AppCompatActivity {
     public static final int FAST_UPDATE_INTERVAL = 5;
     private static final int PERMISSIONS_FINE_LOCATION = 99;
     private static String[] MUNLIST;
+    private String MunViewText;
+    private String ProvViewText;
+    private String CCAAViewText;
 
     TextView ccaa, mun, prov, address, restriction;
     EditText tdqueda;
     BottomNavigationView botNav;
     String municipio;
+    SearchView CCAAView, ProvView, MunView;
 
 
     Timer timer;
@@ -94,6 +98,9 @@ public class MainActivity extends AppCompatActivity {
         address = findViewById(R.id.address);
         restriction = findViewById(R.id.restriction);
         botNav = findViewById(R.id.bottom_navigation);
+        CCAAView = (SearchView) findViewById(R.id.CCAAView);
+        ProvView = (SearchView) findViewById(R.id.ProvView);
+        MunView = (SearchView) findViewById(R.id.MunView);
 
         db.collection("Provincias").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -157,6 +164,21 @@ public class MainActivity extends AppCompatActivity {
         botNav.setOnNavigationItemSelectedListener( item -> {
             return navigation(item);
         });
+
+        MunView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query){
+                MunViewText = query;
+                municipio = MunViewText;
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                MunViewText = newText;
+                return false;
+            }
+        });
     }
 
     @Override
@@ -192,6 +214,14 @@ public class MainActivity extends AppCompatActivity {
             prov.setText(addresses.get(0).getSubAdminArea());
             mun.setText(addresses.get(0).getLocality());
             ccaa.setText(addresses.get(0).getAdminArea());
+            if(MunViewText == null || MunViewText.isEmpty())
+                municipio = mun.getText().toString();
+            /*if(ProvViewText == null || ProvViewText.isEmpty())
+                municipio = mun.getText().toString();
+            if(CCAAViewText == null || CCAAViewText.isEmpty())
+                municipio = mun.getText().toString();*/
+
+            MunView.setQueryHint(municipio);
 
         } catch(Exception e){
             address.setText("No se encontró la ubicación");
@@ -204,6 +234,7 @@ public class MainActivity extends AppCompatActivity {
             timer.scheduleAtFixedRate(new TimerTask() {
         @Override
         public void run() {
+            Log.d(TAG, municipio + "   dfkdbfksdbfkbdkf");
             DocumentReference docRef = db.collection("Provincias").document(municipio);
             docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                 @Override
@@ -239,42 +270,5 @@ public class MainActivity extends AppCompatActivity {
             default:
                 return true;
         }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu){
-        getMenuInflater().inflate(R.menu.search_menu, menu);
-        SearchView searchView = (SearchView) menu.findItem(R.id.search_icon).getActionView();
-        searchView.setQueryHint("Municipio");
-
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                municipio = query;
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                return false;
-            }
-        });
-
-        searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
-            @Override
-            public boolean onSuggestionClick(int position) {
-                /*Cursor cursor = (Cursor) mAdapter.getItem(position);
-                String txt = cursor.getString(cursor.getColumnIndex("cityName"));
-                searchView.setQuery(munList.get(position),true);*/
-                return true;
-            }
-
-            @Override
-            public boolean onSuggestionSelect(int position) {
-                //searchView.setQuery(munList.get(position),true);
-                return true;
-            }
-        });
-        return super.onCreateOptionsMenu(menu);
     }
 }
