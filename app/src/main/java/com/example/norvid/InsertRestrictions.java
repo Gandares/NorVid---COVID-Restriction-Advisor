@@ -123,7 +123,7 @@ public class InsertRestrictions extends AppCompatActivity {
                 Map<String, Object> data = new HashMap<>();
                 data.put("Toque de queda", tdqueda.getText().toString());
 
-                DocumentReference dbField = db.collection("Provincias").document(mun);
+                DocumentReference dbField = db.collection("Municipios").document(mun);
                 dbField.set(data);
 
                 // UPDATE

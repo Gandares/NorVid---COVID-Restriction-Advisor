@@ -68,12 +68,14 @@ public class MainActivity extends AppCompatActivity {
     private String MunViewText;
     private String ProvViewText;
     private String CCAAViewText;
+    private boolean firstTime = true;
 
-    TextView ccaa, mun, prov, address, restriction;
+    TextView ccaa, mun, prov, restriction, restrictionProv, restrictionCCAA;
     EditText tdqueda;
     BottomNavigationView botNav;
-    String municipio;
+    String municipio, provincia, comunidadAutonoma;
     SearchView CCAAView, ProvView, MunView;
+    Button loadButton;
 
 
     Timer timer;
@@ -95,29 +97,14 @@ public class MainActivity extends AppCompatActivity {
         ccaa = findViewById(R.id.ccaa);
         prov = findViewById(R.id.prov);
         mun = findViewById(R.id.mun);
-        address = findViewById(R.id.address);
         restriction = findViewById(R.id.restriction);
+        restrictionProv = findViewById(R.id.restrictionProv);
+        restrictionCCAA = findViewById(R.id.restrictionCCAA);
         botNav = findViewById(R.id.bottom_navigation);
         CCAAView = (SearchView) findViewById(R.id.CCAAView);
         ProvView = (SearchView) findViewById(R.id.ProvView);
         MunView = (SearchView) findViewById(R.id.MunView);
-
-        db.collection("Provincias").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task){
-                ArrayList<String> munAux = new ArrayList<>();
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        munAux.add(document.getId());
-                    }
-                } else {
-                    Log.d(TAG, "Error getting documents: ", task.getException());
-                }
-                String auxString;
-                auxString=munAux.toString().substring(1,munAux.toString().length()-1);
-                MUNLIST = auxString.split(", ");
-            }
-        });
+        loadButton = findViewById(R.id.loadButton);
 
 
         // set all properties of LocationRequest
@@ -137,6 +124,10 @@ public class MainActivity extends AppCompatActivity {
                 for (Location location : locationResult.getLocations()) {
                     if (location != null) {
                         updateUIValues(location);
+                        if(firstTime==true) {
+                            showData();
+                            firstTime = false;
+                        }
                     }
                 }
             }
@@ -157,13 +148,10 @@ public class MainActivity extends AppCompatActivity {
         mFirebaseAnalytics.logEvent("InitScreen", bundle);
 
         municipio = mun.getText().toString();
+        provincia = prov.getText().toString();
+        comunidadAutonoma = ccaa.getText().toString();
 
-        showData();
-        //setupArrays();
-
-        botNav.setOnNavigationItemSelectedListener( item -> {
-            return navigation(item);
-        });
+        loadButton.setOnClickListener(v -> showData());
 
         MunView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -176,6 +164,36 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextChange(String newText) {
                 MunViewText = newText;
+                return false;
+            }
+        });
+
+        ProvView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query){
+                ProvViewText = query;
+                provincia = ProvViewText;
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                ProvViewText = newText;
+                return false;
+            }
+        });
+
+        CCAAView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query){
+                CCAAViewText = query;
+                comunidadAutonoma = CCAAViewText;
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                CCAAViewText = newText;
                 return false;
             }
         });
@@ -210,47 +228,72 @@ public class MainActivity extends AppCompatActivity {
 
             List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
             // getCountryName, getLocality, getAddressLine
-            address.setText(addresses.get(0).getAddressLine(0));
             prov.setText(addresses.get(0).getSubAdminArea());
             mun.setText(addresses.get(0).getLocality());
             ccaa.setText(addresses.get(0).getAdminArea());
             if(MunViewText == null || MunViewText.isEmpty())
                 municipio = mun.getText().toString();
-            /*if(ProvViewText == null || ProvViewText.isEmpty())
-                municipio = mun.getText().toString();
+            if(ProvViewText == null || ProvViewText.isEmpty())
+                provincia = prov.getText().toString();
             if(CCAAViewText == null || CCAAViewText.isEmpty())
-                municipio = mun.getText().toString();*/
+                comunidadAutonoma = ccaa.getText().toString();
 
             MunView.setQueryHint(municipio);
+            ProvView.setQueryHint(provincia);
+            CCAAView.setQueryHint(comunidadAutonoma);
 
         } catch(Exception e){
-            address.setText("No se encontró la ubicación");
+
         }
     }
 
 
     private void showData() {
-        timer = new Timer();
-            timer.scheduleAtFixedRate(new TimerTask() {
-        @Override
-        public void run() {
-            Log.d(TAG, municipio + "   dfkdbfksdbfkbdkf");
-            DocumentReference docRef = db.collection("Provincias").document(municipio);
-            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if (document.exists())
-                            restriction.setText("Toque de queda: " + document.getData().get("Toque de queda").toString());
-                        else
-                            restriction.setText("Cargando restricción...");
-                    } else
-                        restriction.setText("Fallo en la petición a la base de datos...");
-                }
-            });
+        Log.d(TAG, municipio + "   dfkdbfksdbfkbdkf");
+        DocumentReference docRef = db.collection("Municipios").document(municipio);
+        DocumentReference docRefProv = db.collection("Provincias").document(provincia);
+        DocumentReference docRefCCAA = db.collection("CCAA").document(comunidadAutonoma);
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists())
+                        restriction.setText("Toque de queda: " + document.getData().get("Toque de queda").toString());
+                    else
+                        restriction.setText("Cargando restricción...");
+                } else
+                    restriction.setText("Fallo en la petición a la base de datos...");
             }
-        }, 0, 5000);
+        });
+
+        docRefProv.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists())
+                        restrictionProv.setText("Toque de queda: " + document.getData().get("Toque de queda").toString());
+                    else
+                        restrictionProv.setText("Cargando restricción...");
+                } else
+                    restrictionProv.setText("Fallo en la petición a la base de datos...");
+            }
+        });
+
+        docRefCCAA.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists())
+                        restrictionCCAA.setText("Toque de queda: " + document.getData().get("Toque de queda").toString());
+                    else
+                        restrictionCCAA.setText("Cargando restricción...");
+                } else
+                    restrictionCCAA.setText("Fallo en la petición a la base de datos...");
+            }
+        });
     }
 
     public boolean navigation(MenuItem item){
@@ -260,8 +303,6 @@ public class MainActivity extends AppCompatActivity {
                 return true;
 
             case R.id.upload:
-                timer.cancel();
-                timer.purge();
                 Log.d(TAG, "upload");
                 Intent myIntent = new Intent(this, InsertRestrictions.class);
                 this.startActivity(myIntent);
