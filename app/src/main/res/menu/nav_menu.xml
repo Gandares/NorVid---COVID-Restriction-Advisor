@@ -11,4 +11,8 @@
         android:icon="@drawable/upload"
         android:title="Actualizar"/>
 
+    <item android:id="@+id/login"
+        android:icon="@drawable/login"
+        android:title="Inicio de sesión"/>
+
 </menu>

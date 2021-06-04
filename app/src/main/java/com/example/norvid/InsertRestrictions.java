@@ -151,6 +151,12 @@ public class InsertRestrictions extends AppCompatActivity {
                 Log.d(TAG, "upload");
                 return true;
 
+            case R.id.login:
+                Log.d(TAG, "upload");
+                Intent loginIntent = new Intent(this, loginActivity.class);
+                this.startActivity(loginIntent);
+                return true;
+
             default:
                 return true;
         }

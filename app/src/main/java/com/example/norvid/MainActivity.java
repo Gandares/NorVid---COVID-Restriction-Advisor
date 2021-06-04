@@ -151,6 +151,10 @@ public class MainActivity extends AppCompatActivity {
         provincia = prov.getText().toString();
         comunidadAutonoma = ccaa.getText().toString();
 
+        botNav.setOnNavigationItemSelectedListener( item -> {
+            return navigation(item);
+        });
+
         loadButton.setOnClickListener(v -> showData());
 
         MunView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -306,6 +310,12 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "upload");
                 Intent myIntent = new Intent(this, InsertRestrictions.class);
                 this.startActivity(myIntent);
+                return true;
+
+            case R.id.login:
+                Log.d(TAG, "upload");
+                Intent loginIntent = new Intent(this, loginActivity.class);
+                this.startActivity(loginIntent);
                 return true;
 
             default:
