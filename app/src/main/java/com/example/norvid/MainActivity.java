@@ -168,6 +168,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextChange(String newText) {
                 MunViewText = newText;
+                municipio = MunViewText;
                 return false;
             }
         });
@@ -183,6 +184,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextChange(String newText) {
                 ProvViewText = newText;
+                provincia = ProvViewText;
                 return false;
             }
         });
@@ -198,6 +200,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextChange(String newText) {
                 CCAAViewText = newText;
+                comunidadAutonoma = CCAAViewText;
                 return false;
             }
         });
