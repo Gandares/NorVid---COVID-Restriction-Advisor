@@ -309,12 +309,6 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "corona");
                 return true;
 
-            case R.id.upload:
-                Log.d(TAG, "upload");
-                Intent myIntent = new Intent(this, InsertRestrictions.class);
-                this.startActivity(myIntent);
-                return true;
-
             case R.id.login:
                 Log.d(TAG, "upload");
                 Intent loginIntent = new Intent(this, loginActivity.class);

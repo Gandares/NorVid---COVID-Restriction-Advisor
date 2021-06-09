@@ -89,11 +89,6 @@ public class loginActivity extends AppCompatActivity {
                 this.startActivity(myIntent);
                 return true;
 
-            case R.id.upload:
-                Intent insertIntent = new Intent(this, InsertRestrictions.class);
-                this.startActivity(insertIntent);
-                return true;
-
             default:
                 return true;
         }

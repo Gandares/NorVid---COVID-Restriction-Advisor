@@ -6,11 +6,6 @@
         android:icon="@drawable/coronavirus"
         android:title="Restricciones"/>
 
-    <item
-        android:id="@+id/upload"
-        android:icon="@drawable/upload"
-        android:title="Actualizar"/>
-
     <item android:id="@+id/login"
         android:icon="@drawable/login"
         android:title="Inicio de sesión"/>

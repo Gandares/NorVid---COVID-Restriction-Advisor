@@ -27,6 +27,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -43,7 +44,7 @@ public class InsertRestrictions extends AppCompatActivity {
 
     EditText tdqueda;
     String mun, provUser;
-    Button button;
+    Button button, logout;
 
     FusedLocationProviderClient fusedLocationProviderClient;
 
@@ -84,6 +85,7 @@ public class InsertRestrictions extends AppCompatActivity {
 
         tdqueda = findViewById(R.id.bbddtext);
         button = findViewById(R.id.savebutton);
+        logout = findViewById(R.id.logOutButton);
 
         button.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){
@@ -131,6 +133,14 @@ public class InsertRestrictions extends AppCompatActivity {
            /*
            lmao.update("Frontera", "Abierta");
             */
+            }
+        });
+
+        logout.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                FirebaseAuth.getInstance().signOut();
+                Intent myIntent = new Intent(InsertRestrictions.this, MainActivity.class);
+                InsertRestrictions.this.startActivity(myIntent);
             }
         });
 
