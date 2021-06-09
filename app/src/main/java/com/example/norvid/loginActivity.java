@@ -55,8 +55,10 @@ public class loginActivity extends AppCompatActivity {
                             if (task.isSuccessful()) {
                                 // Sign in success, update UI with the signed-in user's information
                                 FirebaseUser user = mAuth.getCurrentUser();
-                                Log.d("lol", user.getEmail());
-                                lol.setText(user.getEmail());
+                                if(user.getEmail()!="user@admin.es") {
+                                    Intent insertIntent = new Intent(loginActivity.this, InsertRestrictions.class).putExtra("email", user.getEmail());
+                                    loginActivity.this.startActivity(insertIntent);
+                                }
                             } else {
                                 AlertDialog.Builder error = new AlertDialog.Builder(loginActivity.this);
                                 error.setTitle("Error");

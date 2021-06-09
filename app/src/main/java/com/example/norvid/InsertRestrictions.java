@@ -1,5 +1,6 @@
 package com.example.norvid;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
@@ -22,8 +23,12 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
@@ -37,8 +42,8 @@ public class InsertRestrictions extends AppCompatActivity {
     public static final int FAST_UPDATE_INTERVAL = 5;
 
     EditText tdqueda;
-    BottomNavigationView botNav;
-    String mun;
+    String mun, provUser;
+    Button button;
 
     FusedLocationProviderClient fusedLocationProviderClient;
 
@@ -50,6 +55,8 @@ public class InsertRestrictions extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_insert_restrictions);
+
+        String emailUse = getIntent().getStringExtra("email");
 
         locationRequest = LocationRequest.create();
         locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
@@ -73,92 +80,70 @@ public class InsertRestrictions extends AppCompatActivity {
             fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
         }
 
-        botNav = findViewById(R.id.bottom_navigation);
+        provUser = "Prueba";
+
         tdqueda = findViewById(R.id.bbddtext);
+        button = findViewById(R.id.savebutton);
 
-        botNav.setOnNavigationItemSelectedListener( item -> {
-            return navigation(item);
-        });
-    }
-
-    private void setup(Location location){
-    try {
-        Geocoder geocoder = new Geocoder(InsertRestrictions.this);
-        List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-
-        mun = addresses.get(0).getLocality();
-    }catch(Exception e){
-        Log.d(TAG,"Error: " + e);
-    }
-        Button button = (Button) findViewById(R.id.savebutton);
         button.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){
 
+                Log.d(TAG, emailUse + "/dsfsdfasfdf");
+
                 //  DELETE
-               /*
-               db.collection("Zona").document("Granada")
-                       .delete();
-               */
+           /*
+           db.collection("Zona").document("Granada")
+                   .delete();
+           */
                 // GET
-               /*
-               DocumentReference docRef = db.collection("Zona").document("Granada");
-               docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                   @Override
-                   public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                       if (task.isSuccessful()) {
-                           DocumentSnapshot document = task.getResult();
-                           if (document.exists()) {
-                               Log.d(TAG, "DocumentSnapshot data: " + document.getData());
-                           } else {
-                               Log.d(TAG, "No such document");
-                           }
-                       } else {
-                           Log.d(TAG, "get failed with ", task.getException());
-                       }
-                   }
-               });*/
+
+                DocumentReference dbgetter = db.collection("users").document(emailUse);
+                Log.d(TAG, "Hasta aqui bien");
+                dbgetter.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        Log.d(TAG, "Entramos, señores");
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                Log.d(TAG, "Entramos, señores");
+                                provUser = document.getData().get("Prov").toString();
+                                Map<String, Object> data = new HashMap<>();
+                                data.put("Toque de queda", tdqueda.getText().toString());
+
+                                /*Resto de data.put (valores)*/
+
+                                DocumentReference dbField = db.collection("Provincias").document(provUser);
+                                dbField.set(data);
+                            } else {
+                                Log.d(TAG, "No such document");
+                            }
+                        } else {
+                            Log.d(TAG, "get failed with ", task.getException());
+                        }
+                    }
+                });
 
                 // ADD
 
-                Map<String, Object> data = new HashMap<>();
-                data.put("Toque de queda", tdqueda.getText().toString());
-
-                DocumentReference dbField = db.collection("Municipios").document(mun);
-                dbField.set(data);
 
                 // UPDATE
-               /*
-               lmao.update("Frontera", "Abierta");
-                */
+           /*
+           lmao.update("Frontera", "Abierta");
+            */
             }
         });
+
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        return navigation(item);
-    }
+    private void setup(Location location){
+        try {
+            Geocoder geocoder = new Geocoder(InsertRestrictions.this);
+            List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
 
-    public boolean navigation(MenuItem item){
-        switch (item.getItemId()) {
-            case R.id.coronavirus:
-                Log.d(TAG, "corona");
-                Intent myIntent = new Intent(this, MainActivity.class);
-                this.startActivity(myIntent);
-                return true;
-
-            case R.id.upload:
-                Log.d(TAG, "upload");
-                return true;
-
-            case R.id.login:
-                Log.d(TAG, "upload");
-                Intent loginIntent = new Intent(this, loginActivity.class);
-                this.startActivity(loginIntent);
-                return true;
-
-            default:
-                return true;
+            mun = addresses.get(0).getLocality();
+        }catch(Exception e){
+            Log.d(TAG,"Error: " + e);
         }
     }
 }
