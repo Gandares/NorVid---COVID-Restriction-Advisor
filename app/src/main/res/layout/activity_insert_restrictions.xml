@@ -6,30 +6,237 @@
     android:layout_height="match_parent"
     tools:context=".InsertRestrictions">
 
+    <TextView
+        android:id="@+id/tdq"
+        android:layout_width="115dp"
+        android:layout_height="20dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        android:text="Toque de queda:"
+        app:layout_constraintStart_toStartOf="@+id/textView6"
+        app:layout_constraintTop_toBottomOf="@+id/textView6" />
+
     <EditText
-        android:id="@+id/bbddtext"
-        android:layout_width="94dp"
-        android:layout_height="59dp"
-        android:layout_marginStart="180dp"
-        android:layout_marginLeft="180dp"
-        android:layout_marginTop="60dp"
+        android:id="@+id/bbddtdq"
+        android:layout_width="80dp"
+        android:layout_height="40dp"
         android:ems="10"
         android:inputType="textPersonName"
+        android:textSize="17sp"
+        app:layout_constraintBottom_toBottomOf="@+id/tdq"
+        app:layout_constraintStart_toEndOf="@+id/tdq"
+        app:layout_constraintTop_toTopOf="@+id/tdq" />
+
+    <TextView
+        android:id="@+id/slash"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="-"
+        app:layout_constraintBottom_toBottomOf="@+id/bbddtdq"
+        app:layout_constraintStart_toEndOf="@+id/bbddtdq"
+        app:layout_constraintTop_toTopOf="@+id/bbddtdq" />
+
+    <EditText
+        android:id="@+id/bbddtdq2"
+        android:layout_width="80dp"
+        android:layout_height="40dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:textSize="17sp"
+        app:layout_constraintBottom_toBottomOf="@+id/tdq"
+        app:layout_constraintStart_toEndOf="@+id/slash"
+        app:layout_constraintTop_toTopOf="@+id/tdq" />
+
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
+        android:layout_marginLeft="50dp"
+        android:layout_marginTop="30dp"
+        android:text="Comunidad autónoma:"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/tdq"
-        android:layout_width="115dp"
-        android:layout_height="35dp"
-        android:layout_marginStart="52dp"
-        android:layout_marginLeft="52dp"
-        android:layout_marginTop="80dp"
-        android:text="Toque de queda:"
-        app:layout_constraintEnd_toStartOf="@+id/bbddtext"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:id="@+id/ccaatext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginLeft="5dp"
+        app:layout_constraintBottom_toBottomOf="@+id/textView6"
+        app:layout_constraintStart_toEndOf="@+id/textView6" />
+
+    <TextView
+        android:id="@+id/cp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Cierre perimetral"
+        app:layout_constraintStart_toStartOf="@+id/tdq"
+        app:layout_constraintTop_toBottomOf="@+id/tdq" />
+
+    <CheckBox
+        android:id="@+id/bbddcp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        app:layout_constraintBottom_toBottomOf="@+id/cp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tdq" />
+
+    <TextView
+        android:id="@+id/r"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Reunión:"
+        app:layout_constraintStart_toStartOf="@+id/cp"
+        app:layout_constraintTop_toBottomOf="@+id/cp" />
+
+    <EditText
+        android:id="@+id/ddbbr"
+        android:layout_width="80dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="5dp"
+        android:ems="10"
+        android:inputType="number"
+        android:textSize="17sp"
+        app:layout_constraintBottom_toBottomOf="@+id/r"
+        app:layout_constraintStart_toEndOf="@+id/r"
+        app:layout_constraintTop_toTopOf="@+id/r" />
+
+    <TextView
+        android:id="@+id/hmh"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Hora máxima hostelería:"
+        app:layout_constraintStart_toStartOf="@+id/r"
+        app:layout_constraintTop_toBottomOf="@+id/r" />
+
+    <EditText
+        android:id="@+id/bbddthmh"
+        android:layout_width="80dp"
+        android:layout_height="40dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:textSize="17sp"
+        app:layout_constraintBottom_toBottomOf="@+id/hmh"
+        app:layout_constraintStart_toEndOf="@+id/hmh"
+        app:layout_constraintTop_toBottomOf="@+id/ddbbr" />
+
+    <TextView
+        android:id="@+id/i"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Personas en interior:"
+        app:layout_constraintStart_toStartOf="@+id/hmh"
+        app:layout_constraintTop_toBottomOf="@+id/hmh" />
+
+    <EditText
+        android:id="@+id/ddbbi"
+        android:layout_width="80dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="5dp"
+        android:ems="10"
+        android:inputType="number"
+        android:textSize="17sp"
+        app:layout_constraintBottom_toTopOf="@+id/e"
+        app:layout_constraintStart_toEndOf="@+id/i"
+        app:layout_constraintTop_toBottomOf="@+id/hmh" />
+
+    <TextView
+        android:id="@+id/e"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Personas en exterior:"
+        app:layout_constraintStart_toStartOf="@+id/hmh"
+        app:layout_constraintTop_toBottomOf="@+id/i" />
+
+    <EditText
+        android:id="@+id/ddbbe"
+        android:layout_width="80dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="5dp"
+        android:ems="10"
+        android:inputType="number"
+        android:textSize="17sp"
+        app:layout_constraintBottom_toBottomOf="@+id/e"
+        app:layout_constraintStart_toEndOf="@+id/e"
+        app:layout_constraintTop_toTopOf="@+id/e" />
+
+    <TextView
+        android:id="@+id/hmon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Hora máxima ocio nocturno"
+        app:layout_constraintStart_toStartOf="@+id/e"
+        app:layout_constraintTop_toBottomOf="@+id/e" />
+
+    <EditText
+        android:id="@+id/bbddhmon"
+        android:layout_width="80dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="5dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:textSize="17sp"
+        app:layout_constraintBottom_toBottomOf="@+id/hmon"
+        app:layout_constraintStart_toEndOf="@+id/hmon"
+        app:layout_constraintTop_toTopOf="@+id/hmon" />
+
+    <CheckBox
+        android:id="@+id/tdqCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/tdq"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/tdq" />
+
+    <CheckBox
+        android:id="@+id/rCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/r"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/r" />
+
+    <CheckBox
+        android:id="@+id/hmhCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/hmh"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ddbbr" />
+
+    <CheckBox
+        android:id="@+id/iCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/i"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/i" />
+
+    <CheckBox
+        android:id="@+id/eCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/e"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/e" />
+
+    <CheckBox
+        android:id="@+id/hmonCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/hmon"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/hmon" />
 
     <Button
         android:id="@+id/logOutButton"

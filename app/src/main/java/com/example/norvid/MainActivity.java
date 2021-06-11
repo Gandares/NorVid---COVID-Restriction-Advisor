@@ -294,7 +294,7 @@ public class MainActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists())
-                        restrictionCCAA.setText("Toque de queda: " + document.getData().get("Toque de queda").toString());
+                        restrictionCCAA.setText("Toque de queda: " + document.getData().get("tdq").toString());
                     else
                         restrictionCCAA.setText("Cargando restricción...");
                 } else
