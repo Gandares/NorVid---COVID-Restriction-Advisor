@@ -266,7 +266,7 @@ public class MainActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists())
-                        restriction.setText("Toque de queda: " + document.getData().get("Toque de queda").toString());
+                        restriction.setText("Toque de queda: " + document.getData().get("tdq").toString());
                     else
                         restriction.setText("Cargando restricción...");
                 } else
@@ -280,7 +280,7 @@ public class MainActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists())
-                        restrictionProv.setText("Toque de queda: " + document.getData().get("Toque de queda").toString());
+                        restrictionProv.setText("Toque de queda: " + document.getData().get("tdq").toString());
                     else
                         restrictionProv.setText("Cargando restricción...");
                 } else
