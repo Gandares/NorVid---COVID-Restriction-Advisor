@@ -69,9 +69,18 @@ public class MainActivity extends AppCompatActivity {
     private String ProvViewText;
     private String CCAAViewText;
     private boolean firstTime = true;
+    private final String nohay = "No hay.";
+    private final String ned = "No existen datos.";
+    private final String eelp = "Error en la petición.";
 
-    TextView ccaa, mun, prov, restriction, restrictionProv, restrictionCCAA;
-    EditText tdqueda;
+    //TextView ccaa, mun, prov;
+
+    TextView bbddtdqA, bbddcpA, bbddrA, bbddhmhA, bbddiA, bbddeA, bbddhmonA;
+
+    TextView pbbddtdqA, pbbddcpA, pbbddrA, pbbddhmhA, pbbddiA, pbbddeA, pbbddhmonA;
+
+    TextView mbbddtdqA, mbbddcpA, mbbddrA, mbbddhmhA, mbbddiA, mbbddeA, mbbddhmonA;
+
     BottomNavigationView botNav;
     String municipio, provincia, comunidadAutonoma;
     SearchView CCAAView, ProvView, MunView;
@@ -94,12 +103,34 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        ccaa = findViewById(R.id.ccaa);
+        /*ccaa = findViewById(R.id.ccaa);
         prov = findViewById(R.id.prov);
-        mun = findViewById(R.id.mun);
-        restriction = findViewById(R.id.restriction);
-        restrictionProv = findViewById(R.id.restrictionProv);
-        restrictionCCAA = findViewById(R.id.restrictionCCAA);
+        mun = findViewById(R.id.mun);*/
+
+        bbddtdqA = findViewById(R.id.bbddtdqA);
+        bbddcpA = findViewById(R.id.bbddcpA);
+        bbddrA = findViewById(R.id.bbddrA);
+        bbddhmhA = findViewById(R.id.bbddhmhA);
+        bbddiA = findViewById(R.id.bbddiA);
+        bbddeA = findViewById(R.id.bbddeA);
+        bbddhmonA = findViewById(R.id.bbddhmonA);
+
+        pbbddtdqA = findViewById(R.id.pbbddtdqA);
+        pbbddcpA = findViewById(R.id.pbbddcpA);
+        pbbddrA = findViewById(R.id.pbbddrA);
+        pbbddhmhA = findViewById(R.id.pbbddhmhA);
+        pbbddiA = findViewById(R.id.pbbddiA);
+        pbbddeA = findViewById(R.id.pbbddeA);
+        pbbddhmonA = findViewById(R.id.pbbddhmonA);
+
+        mbbddtdqA = findViewById(R.id.mbbddtdqA);
+        mbbddcpA = findViewById(R.id.mbbddcpA);
+        mbbddrA = findViewById(R.id.mbbddrA);
+        mbbddhmhA = findViewById(R.id.mbbddhmhA);
+        mbbddiA = findViewById(R.id.mbbddiA);
+        mbbddeA = findViewById(R.id.mbbddeA);
+        mbbddhmonA = findViewById(R.id.mbbddhmonA);
+
         botNav = findViewById(R.id.bottom_navigation);
         CCAAView = (SearchView) findViewById(R.id.CCAAView);
         ProvView = (SearchView) findViewById(R.id.ProvView);
@@ -147,9 +178,9 @@ public class MainActivity extends AppCompatActivity {
         bundle.putString("message", "Aplicación abierta");
         mFirebaseAnalytics.logEvent("InitScreen", bundle);
 
-        municipio = mun.getText().toString();
+        /*municipio = mun.getText().toString();
         provincia = prov.getText().toString();
-        comunidadAutonoma = ccaa.getText().toString();
+        comunidadAutonoma = ccaa.getText().toString();*/
 
         botNav.setOnNavigationItemSelectedListener( item -> {
             return navigation(item);
@@ -169,6 +200,9 @@ public class MainActivity extends AppCompatActivity {
             public boolean onQueryTextChange(String newText) {
                 MunViewText = newText;
                 municipio = MunViewText;
+                if(newText.equals("")||newText.contains("/")){
+                    loadButton.setEnabled(false);
+                }
                 return false;
             }
         });
@@ -185,6 +219,9 @@ public class MainActivity extends AppCompatActivity {
             public boolean onQueryTextChange(String newText) {
                 ProvViewText = newText;
                 provincia = ProvViewText;
+                if(newText.equals("")||newText.contains("/")){
+                    loadButton.setEnabled(false);
+                }
                 return false;
             }
         });
@@ -201,6 +238,9 @@ public class MainActivity extends AppCompatActivity {
             public boolean onQueryTextChange(String newText) {
                 CCAAViewText = newText;
                 comunidadAutonoma = CCAAViewText;
+                if(newText.equals("")||newText.contains("/")){
+                    loadButton.setEnabled(false);
+                }
                 return false;
             }
         });
@@ -235,19 +275,23 @@ public class MainActivity extends AppCompatActivity {
 
             List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
             // getCountryName, getLocality, getAddressLine
-            prov.setText(addresses.get(0).getSubAdminArea());
+            /*prov.setText(addresses.get(0).getSubAdminArea());
             mun.setText(addresses.get(0).getLocality());
-            ccaa.setText(addresses.get(0).getAdminArea());
+            ccaa.setText(addresses.get(0).getAdminArea());*/
             if(MunViewText == null || MunViewText.isEmpty())
-                municipio = mun.getText().toString();
+                municipio = addresses.get(0).getLocality();
             if(ProvViewText == null || ProvViewText.isEmpty())
-                provincia = prov.getText().toString();
+                provincia = addresses.get(0).getSubAdminArea();
             if(CCAAViewText == null || CCAAViewText.isEmpty())
-                comunidadAutonoma = ccaa.getText().toString();
+                comunidadAutonoma = addresses.get(0).getAdminArea();
 
             MunView.setQueryHint(municipio);
             ProvView.setQueryHint(provincia);
             CCAAView.setQueryHint(comunidadAutonoma);
+
+            if(!comunidadAutonoma.equals("")&&!comunidadAutonoma.contains("/")&&!municipio.equals("")&&!municipio.contains("/")&&!provincia.equals("")&&!provincia.contains("/")) {
+                loadButton.setEnabled(true);
+            }
 
         } catch(Exception e){
 
@@ -256,7 +300,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void showData() {
-        Log.d(TAG, municipio + "   dfkdbfksdbfkbdkf");
         DocumentReference docRef = db.collection("Municipios").document(municipio);
         DocumentReference docRefProv = db.collection("Provincias").document(provincia);
         DocumentReference docRefCCAA = db.collection("CCAA").document(comunidadAutonoma);
@@ -265,12 +308,67 @@ public class MainActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
-                    if (document.exists())
-                        restriction.setText("Toque de queda: " + document.getData().get("tdq").toString());
-                    else
-                        restriction.setText("Cargando restricción...");
-                } else
-                    restriction.setText("Fallo en la petición a la base de datos...");
+                    if (document.exists()) {
+                        String tdqddbb = document.getData().get("tdq").toString();
+                        if(tdqddbb.equals("-"))
+                            mbbddtdqA.setText(nohay);
+                        else
+                            mbbddtdqA.setText(tdqddbb);
+
+                        String cpddbb = document.getData().get("cp").toString();
+                        if(cpddbb.equals("false"))
+                            mbbddcpA.setText(nohay);
+                        else
+                            mbbddcpA.setText(cpddbb);
+
+                        String rddbb = document.getData().get("r").toString();
+                        if(rddbb.equals(""))
+                            mbbddrA.setText(nohay);
+                        else
+                            mbbddrA.setText(rddbb);
+
+                        String hmhddbb = document.getData().get("hmh").toString();
+                        if(hmhddbb.equals(""))
+                            mbbddhmhA.setText(nohay);
+                        else
+                            mbbddhmhA.setText(hmhddbb);
+
+                        String iddbb = document.getData().get("i").toString();
+                        if(iddbb.equals(""))
+                            mbbddiA.setText(nohay);
+                        else
+                            mbbddiA.setText(iddbb);
+
+                        String eddbb = document.getData().get("e").toString();
+                        if(eddbb.equals(""))
+                            mbbddeA.setText(nohay);
+                        else
+                            mbbddeA.setText(eddbb);
+
+                        String hmonddbb = document.getData().get("hmon").toString();
+                        if(hmonddbb.equals(""))
+                            mbbddhmonA.setText(nohay);
+                        else
+                            mbbddhmonA.setText(hmonddbb);
+                    }
+                    else {
+                        mbbddtdqA.setText(ned);
+                        mbbddcpA.setText(ned);
+                        mbbddrA.setText(ned);
+                        mbbddhmhA.setText(ned);
+                        mbbddiA.setText(ned);
+                        mbbddeA.setText(ned);
+                        mbbddhmonA.setText(ned);
+                    }
+                } else {
+                    mbbddtdqA.setText(eelp);
+                    mbbddcpA.setText(eelp);
+                    mbbddrA.setText(eelp);
+                    mbbddhmhA.setText(eelp);
+                    mbbddiA.setText(eelp);
+                    mbbddeA.setText(eelp);
+                    mbbddhmonA.setText(eelp);
+                }
             }
         });
 
@@ -279,12 +377,67 @@ public class MainActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
-                    if (document.exists())
-                        restrictionProv.setText("Toque de queda: " + document.getData().get("tdq").toString());
-                    else
-                        restrictionProv.setText("Cargando restricción...");
-                } else
-                    restrictionProv.setText("Fallo en la petición a la base de datos...");
+                    if (document.exists()) {
+                        String tdqddbb = document.getData().get("tdq").toString();
+                        if(tdqddbb.equals("-"))
+                            pbbddtdqA.setText(nohay);
+                        else
+                            pbbddtdqA.setText(tdqddbb);
+
+                        String cpddbb = document.getData().get("cp").toString();
+                        if(cpddbb.equals("false"))
+                            pbbddcpA.setText(nohay);
+                        else
+                            pbbddcpA.setText(cpddbb);
+
+                        String rddbb = document.getData().get("r").toString();
+                        if(rddbb.equals(""))
+                            pbbddrA.setText(nohay);
+                        else
+                            pbbddrA.setText(rddbb);
+
+                        String hmhddbb = document.getData().get("hmh").toString();
+                        if(hmhddbb.equals(""))
+                            pbbddhmhA.setText(nohay);
+                        else
+                            pbbddhmhA.setText(hmhddbb);
+
+                        String iddbb = document.getData().get("i").toString();
+                        if(iddbb.equals(""))
+                            pbbddiA.setText(nohay);
+                        else
+                            pbbddiA.setText(iddbb);
+
+                        String eddbb = document.getData().get("e").toString();
+                        if(eddbb.equals(""))
+                            pbbddeA.setText(nohay);
+                        else
+                            pbbddeA.setText(eddbb);
+
+                        String hmonddbb = document.getData().get("hmon").toString();
+                        if(hmonddbb.equals(""))
+                            pbbddhmonA.setText(nohay);
+                        else
+                            pbbddhmonA.setText(hmonddbb);
+                    }
+                    else {
+                        pbbddtdqA.setText(ned);
+                        pbbddcpA.setText(ned);
+                        pbbddrA.setText(ned);
+                        pbbddhmhA.setText(ned);
+                        pbbddiA.setText(ned);
+                        pbbddeA.setText(ned);
+                        pbbddhmonA.setText(ned);
+                    }
+                } else {
+                    pbbddtdqA.setText(eelp);
+                    pbbddcpA.setText(eelp);
+                    pbbddrA.setText(eelp);
+                    pbbddhmhA.setText(eelp);
+                    pbbddiA.setText(eelp);
+                    pbbddeA.setText(eelp);
+                    pbbddhmonA.setText(eelp);
+                }
             }
         });
 
@@ -293,12 +446,67 @@ public class MainActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
-                    if (document.exists())
-                        restrictionCCAA.setText("Toque de queda: " + document.getData().get("tdq").toString());
-                    else
-                        restrictionCCAA.setText("Cargando restricción...");
-                } else
-                    restrictionCCAA.setText("Fallo en la petición a la base de datos...");
+                    if (document.exists()) {
+                        String tdqddbb = document.getData().get("tdq").toString();
+                        if(tdqddbb.equals("-"))
+                            bbddtdqA.setText(nohay);
+                        else
+                            bbddtdqA.setText(tdqddbb);
+
+                        String cpddbb = document.getData().get("cp").toString();
+                        if(cpddbb.equals("false"))
+                            bbddcpA.setText(nohay);
+                        else
+                            bbddcpA.setText(cpddbb);
+
+                        String rddbb = document.getData().get("r").toString();
+                        if(rddbb.equals(""))
+                            bbddrA.setText(nohay);
+                        else
+                            bbddrA.setText(rddbb);
+
+                        String hmhddbb = document.getData().get("hmh").toString();
+                        if(hmhddbb.equals(""))
+                            bbddhmhA.setText(nohay);
+                        else
+                            bbddhmhA.setText(hmhddbb);
+
+                        String iddbb = document.getData().get("i").toString();
+                        if(iddbb.equals(""))
+                            bbddiA.setText(nohay);
+                        else
+                            bbddiA.setText(iddbb);
+
+                        String eddbb = document.getData().get("e").toString();
+                        if(eddbb.equals(""))
+                            bbddeA.setText(nohay);
+                        else
+                            bbddeA.setText(eddbb);
+
+                        String hmonddbb = document.getData().get("hmon").toString();
+                        if(hmonddbb.equals(""))
+                            bbddhmonA.setText(nohay);
+                        else
+                            bbddhmonA.setText(hmonddbb);
+                    }
+                    else {
+                        bbddtdqA.setText(ned);
+                        bbddcpA.setText(ned);
+                        bbddrA.setText(ned);
+                        bbddhmhA.setText(ned);
+                        bbddiA.setText(ned);
+                        bbddeA.setText(ned);
+                        bbddhmonA.setText(ned);
+                    }
+                } else {
+                    bbddtdqA.setText(eelp);
+                    bbddcpA.setText(eelp);
+                    bbddrA.setText(eelp);
+                    bbddhmhA.setText(eelp);
+                    bbddiA.setText(eelp);
+                    bbddeA.setText(eelp);
+                    bbddhmonA.setText(eelp);
+                }
             }
         });
     }
