@@ -23,6 +23,7 @@ import com.google.firebase.auth.FirebaseUser;
 public class loginActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
+    private final String administrator = "user@admin.es";
 
     TextView lol;
     BottomNavigationView botNav;
@@ -55,9 +56,13 @@ public class loginActivity extends AppCompatActivity {
                             if (task.isSuccessful()) {
                                 // Sign in success, update UI with the signed-in user's information
                                 FirebaseUser user = mAuth.getCurrentUser();
-                                if(user.getEmail()!="user@admin.es") {
+                                if(!user.getEmail().equals(administrator)) {
                                     Intent insertIntent = new Intent(loginActivity.this, InsertRestrictions.class).putExtra("email", user.getEmail());
                                     loginActivity.this.startActivity(insertIntent);
+                                }
+                                else{
+                                    Intent adminIntent = new Intent(loginActivity.this, adminActivity.class);
+                                    loginActivity.this.startActivity(adminIntent);
                                 }
                             } else {
                                 AlertDialog.Builder error = new AlertDialog.Builder(loginActivity.this);
