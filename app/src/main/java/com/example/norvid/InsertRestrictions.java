@@ -19,6 +19,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -512,6 +513,8 @@ public class InsertRestrictions extends AppCompatActivity {
 
                                 DocumentReference mdbField = db.collection("Municipios").document(munUser);
                                 mdbField.set(mdata);
+
+                                Toast.makeText(InsertRestrictions.this, "Datos guardados", Toast.LENGTH_SHORT).show();
 
                             } else {
                                 Log.d(TAG, "No such document");

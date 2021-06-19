@@ -20,6 +20,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -83,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
 
     BottomNavigationView botNav;
     String municipio, provincia, comunidadAutonoma;
-    SearchView CCAAView, ProvView, MunView;
+    AutoCompleteTextView ccaaView, ProvView, MunView;
     Button loadButton;
 
 
@@ -132,12 +133,72 @@ public class MainActivity extends AppCompatActivity {
         mbbddhmonA = findViewById(R.id.mbbddhmonA);
 
         botNav = findViewById(R.id.bottom_navigation);
-        CCAAView = (SearchView) findViewById(R.id.CCAAView);
-        ProvView = (SearchView) findViewById(R.id.ProvView);
-        MunView = (SearchView) findViewById(R.id.MunView);
+        ccaaView = findViewById(R.id.ccaaView);
+        ProvView = findViewById(R.id.ProvView);
+        MunView = findViewById(R.id.MunView);
         loadButton = findViewById(R.id.loadButton);
 
+/*
+        String[] ccaas = new String[]{
+                "Álava",
+                "Alicante",
+                "Albacete",
+                "Almería",
+                "Asturias",
+                "Ávila",
+                "Badajoz",
+                "Barcelona",
+                "Burgos",
+                "Cáceres",
+                "Cádiz",
+                "Cantabria",
+                "Castellón",
+                "Ciudad Real",
+                "Córdoba",
+                "La Coruña",
+                "Cuenca",
+                "Gerona",
+                "Granada",
+                "Guadalajara",
+                "Guipúzcoa",
+                "Huelva",
+                "Huesca",
+                "Baleares",
+                "Jaén",
+                "León",
+                "Lérida",
+                "Lugo",
+                "Madrid",
+                "Málaga",
+                "Murcia",
+                "Navarra",
+                "Orense",
+                "Palencia",
+                "Las Palmas",
+                "Pontevedra",
+                "La Rioja",
+                "Salamanca",
+                "Segovia",
+                "Sevilla",
+                "Soria",
+                "Tarragona",
+                "Santa Cruz de Tenerife",
+                "Teruel",
+                "Toledo",
+                "Valencia",
+                "Valladolid",
+                "Vizcaya",
+                "Zamora",
+                "Zaragoza"
+        };
 
+        Map<String, Object> data = new HashMap<>();
+
+        for (String ccaa : ccaas) {
+            Log.d(TAG, ccaa);
+            Task<Void> dbus = db.collection("Provincias").document(ccaa).set(data);
+        }
+*/
         // set all properties of LocationRequest
         locationRequest = LocationRequest.create();
         // How often does the location check occur when set to the most frequent update
@@ -188,61 +249,34 @@ public class MainActivity extends AppCompatActivity {
 
         loadButton.setOnClickListener(v -> showData());
 
-        MunView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query){
-                MunViewText = query;
-                municipio = MunViewText;
-                return false;
-            }
+        String[] Municipios = new String[]{"Tacoronte", "San Cristóbal de La Laguna", "Adeje", "San Sebastián"}; // Traer de la base de datos
 
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                MunViewText = newText;
-                municipio = MunViewText;
-                if(newText.equals("")||newText.contains("/")){
-                    loadButton.setEnabled(false);
-                }
-                return false;
-            }
+        ArrayAdapter<String> adaptermun = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, Municipios);
+        MunView.setAdapter(adaptermun);
+
+        MunView.setOnItemClickListener((parent, view, position, id) -> {
+            MunViewText = parent.getItemAtPosition(position).toString();
+            municipio = MunViewText;
         });
 
-        ProvView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query){
-                ProvViewText = query;
-                provincia = ProvViewText;
-                return false;
-            }
+        String[] Provincias = new String[]{"Leon", "Zamora", "Salamanca", "Lugo"}; // Traer de la base de datos
 
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                ProvViewText = newText;
-                provincia = ProvViewText;
-                if(newText.equals("")||newText.contains("/")){
-                    loadButton.setEnabled(false);
-                }
-                return false;
-            }
+        ArrayAdapter<String> adapterprov = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, Provincias);
+        ProvView.setAdapter(adapterprov);
+
+        ProvView.setOnItemClickListener((parent, view, position, id) -> {
+            ProvViewText = parent.getItemAtPosition(position).toString();
+            provincia = ProvViewText;
         });
 
-        CCAAView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query){
-                CCAAViewText = query;
-                comunidadAutonoma = CCAAViewText;
-                return false;
-            }
+        String[] Comunidades = new String[]{"Andorra", "Albania", "Prueba", "Alemania"}; // Traer de la base de datos
 
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                CCAAViewText = newText;
-                comunidadAutonoma = CCAAViewText;
-                if(newText.equals("")||newText.contains("/")){
-                    loadButton.setEnabled(false);
-                }
-                return false;
-            }
+        ArrayAdapter<String> adapterccaa = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, Comunidades);
+        ccaaView.setAdapter(adapterccaa);
+
+        ccaaView.setOnItemClickListener((parent, view, position, id) -> {
+            CCAAViewText = parent.getItemAtPosition(position).toString();
+            comunidadAutonoma = CCAAViewText;
         });
     }
 
@@ -285,9 +319,9 @@ public class MainActivity extends AppCompatActivity {
             if(CCAAViewText == null || CCAAViewText.isEmpty())
                 comunidadAutonoma = addresses.get(0).getAdminArea();
 
-            MunView.setQueryHint(municipio);
-            ProvView.setQueryHint(provincia);
-            CCAAView.setQueryHint(comunidadAutonoma);
+            MunView.setHint(municipio);
+            ProvView.setHint(provincia);
+            ccaaView.setHint(comunidadAutonoma);
 
             if(!comunidadAutonoma.equals("")&&!comunidadAutonoma.contains("/")&&!municipio.equals("")&&!municipio.contains("/")&&!provincia.equals("")&&!provincia.contains("/")) {
                 loadButton.setEnabled(true);
@@ -300,6 +334,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void showData() {
+        /*
         DocumentReference docRef = db.collection("Municipios").document(municipio);
         DocumentReference docRefProv = db.collection("Provincias").document(provincia);
         DocumentReference docRefCCAA = db.collection("CCAA").document(comunidadAutonoma);
@@ -509,6 +544,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+         */
     }
 
     public boolean navigation(MenuItem item){

@@ -67,33 +67,6 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:menu="@menu/nav_menu" />
 
-            <SearchView
-                android:id="@+id/CCAAView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="42dp"
-                android:maxWidth="200dp"
-                app:layout_constraintStart_toEndOf="@+id/textView2"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <SearchView
-                android:id="@+id/ProvView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:maxWidth="310dp"
-                app:layout_constraintBottom_toBottomOf="@+id/textView3"
-                app:layout_constraintStart_toEndOf="@+id/textView3"
-                app:layout_constraintTop_toTopOf="@+id/textView3" />
-
-            <SearchView
-                android:id="@+id/MunView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:maxWidth="300dp"
-                app:layout_constraintBottom_toBottomOf="@+id/textView4"
-                app:layout_constraintStart_toEndOf="@+id/textView4"
-                app:layout_constraintTop_toTopOf="@+id/textView4" />
-
             <TextView
                 android:id="@+id/tdqA"
                 android:layout_width="wrap_content"
@@ -438,6 +411,30 @@
                 android:text="Cargando..."
                 app:layout_constraintStart_toEndOf="@+id/mhmonA"
                 app:layout_constraintTop_toTopOf="@+id/mhmonA" />
+
+            <AutoCompleteTextView
+                android:id="@+id/ccaaView"
+                android:layout_width="190dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="@+id/textView2"
+                app:layout_constraintStart_toEndOf="@+id/textView2"
+                app:layout_constraintTop_toTopOf="@+id/textView2" />
+
+            <AutoCompleteTextView
+                android:id="@+id/ProvView"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="@+id/textView3"
+                app:layout_constraintStart_toEndOf="@+id/textView3"
+                app:layout_constraintTop_toTopOf="@+id/textView3" />
+
+            <AutoCompleteTextView
+                android:id="@+id/MunView"
+                android:layout_width="290dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="@+id/textView4"
+                app:layout_constraintStart_toEndOf="@+id/textView4"
+                app:layout_constraintTop_toTopOf="@+id/textView4" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
