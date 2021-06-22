@@ -2,14 +2,14 @@ package com.example.norvid;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
-import android.content.ClipData;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
@@ -17,18 +17,13 @@ import android.location.Location;
 import android.os.Build;
 import android.os.Looper;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.AdapterView;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.view.View;
 
 import android.os.Bundle;
-import android.widget.EditText;
-import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,21 +36,19 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
+import org.w3c.dom.Text;
+
+import java.sql.Array;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
 import java.util.Timer;
-import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -73,8 +66,12 @@ public class MainActivity extends AppCompatActivity {
     private final String nohay = "No hay.";
     private final String ned = "No existen datos.";
     private final String eelp = "Error en la petición.";
-
+    int lid = 1000;
+    List<TextView> infos = new ArrayList<TextView>();
+    List<TextView> infosCCAA = new ArrayList<TextView>();
+    List<TextView> infosProv = new ArrayList<TextView>();
     //TextView ccaa, mun, prov;
+
 
     TextView bbddtdqA, bbddcpA, bbddrA, bbddhmhA, bbddiA, bbddeA, bbddhmonA;
 
@@ -82,10 +79,12 @@ public class MainActivity extends AppCompatActivity {
 
     TextView mbbddtdqA, mbbddcpA, mbbddrA, mbbddhmhA, mbbddiA, mbbddeA, mbbddhmonA;
 
+    TextView CargandoCCAA, CargandoProv, CargandoMun;
+
     BottomNavigationView botNav;
     String municipio, provincia, comunidadAutonoma;
     AutoCompleteTextView ccaaView, ProvView, MunView;
-    Button loadButton;
+    Button loadButton, buttonp;
 
 
     Timer timer;
@@ -107,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
         /*ccaa = findViewById(R.id.ccaa);
         prov = findViewById(R.id.prov);
         mun = findViewById(R.id.mun);*/
-
+/*
         bbddtdqA = findViewById(R.id.bbddtdqA);
         bbddcpA = findViewById(R.id.bbddcpA);
         bbddrA = findViewById(R.id.bbddrA);
@@ -122,83 +121,55 @@ public class MainActivity extends AppCompatActivity {
         pbbddhmhA = findViewById(R.id.pbbddhmhA);
         pbbddiA = findViewById(R.id.pbbddiA);
         pbbddeA = findViewById(R.id.pbbddeA);
-        pbbddhmonA = findViewById(R.id.pbbddhmonA);
+        pbbddhmonA = findViewById(R.id.pbbddhmonA);*/
 
-        mbbddtdqA = findViewById(R.id.mbbddtdqA);
+        /*mbbddtdqA = findViewById(R.id.mbbddtdqA);
         mbbddcpA = findViewById(R.id.mbbddcpA);
         mbbddrA = findViewById(R.id.mbbddrA);
         mbbddhmhA = findViewById(R.id.mbbddhmhA);
         mbbddiA = findViewById(R.id.mbbddiA);
         mbbddeA = findViewById(R.id.mbbddeA);
-        mbbddhmonA = findViewById(R.id.mbbddhmonA);
+        mbbddhmonA = findViewById(R.id.mbbddhmonA);*/
 
         botNav = findViewById(R.id.bottom_navigation);
         ccaaView = findViewById(R.id.ccaaView);
         ProvView = findViewById(R.id.ProvView);
         MunView = findViewById(R.id.MunView);
         loadButton = findViewById(R.id.loadButton);
+        loadButton.setEnabled(false);
 
-/*
-        String[] ccaas = new String[]{
-                "Álava",
-                "Alicante",
-                "Albacete",
-                "Almería",
-                "Asturias",
-                "Ávila",
-                "Badajoz",
-                "Barcelona",
-                "Burgos",
-                "Cáceres",
-                "Cádiz",
+        CargandoCCAA = findViewById(R.id.CargandoCCAA);
+        CargandoProv = findViewById(R.id.CargandoProv);
+        CargandoMun = findViewById(R.id.CargandoMun);
+
+        /*List<String> ccaas = Arrays.asList(
+                "Castilla y León",
+                "Andalucía",
+                "Castilla-La Mancha",
+                "Aragón",
+                "Extremadura",
+                "Cataluña",
+                "Galicia",
+                "Comunidad Valenciana",
+                "Región de Murcia",
+                "Principado de Asturias",
+                "Comunidad Foral de Navarra",
+                "Comunidad de Madrid",
+                "Canarias",
+                "País Vasco",
                 "Cantabria",
-                "Castellón",
-                "Ciudad Real",
-                "Córdoba",
-                "La Coruña",
-                "Cuenca",
-                "Gerona",
-                "Granada",
-                "Guadalajara",
-                "Guipúzcoa",
-                "Huelva",
-                "Huesca",
-                "Baleares",
-                "Jaén",
-                "León",
-                "Lérida",
-                "Lugo",
-                "Madrid",
-                "Málaga",
-                "Murcia",
-                "Navarra",
-                "Orense",
-                "Palencia",
-                "Las Palmas",
-                "Pontevedra",
                 "La Rioja",
-                "Salamanca",
-                "Segovia",
-                "Sevilla",
-                "Soria",
-                "Tarragona",
-                "Santa Cruz de Tenerife",
-                "Teruel",
-                "Toledo",
-                "Valencia",
-                "Valladolid",
-                "Vizcaya",
-                "Zamora",
-                "Zaragoza"
-        };
+                "Islas Baleares",
+                "Ceuta",
+                "Melilla"
+        );
 
         Map<String, Object> data = new HashMap<>();
+        data.put("lista", ccaas);
+        data.put("len", 50);
 
-        for (String ccaa : ccaas) {
-            Log.d(TAG, ccaa);
-            Task<Void> dbus = db.collection("Provincias").document(ccaa).set(data);
-        }
-*/
+        db.collection("Listas").document("CCAA").set(data);*/
+
         // set all properties of LocationRequest
         locationRequest = LocationRequest.create();
         // How often does the location check occur when set to the most frequent update
@@ -217,6 +188,7 @@ public class MainActivity extends AppCompatActivity {
                     if (location != null) {
                         updateUIValues(location);
                         if(firstTime==true) {
+                            loadButton.setEnabled(true);
                             showData();
                             firstTime = false;
                         }
@@ -249,7 +221,7 @@ public class MainActivity extends AppCompatActivity {
 
         loadButton.setOnClickListener(v -> showData());
 
-        String[] Municipios = new String[]{"Tacoronte", "San Cristóbal de La Laguna", "Adeje", "San Sebastián"}; // Traer de la base de datos
+        String[] Municipios = new String[]{"Ababuj", "Tacoronte", "San Cristóbal de La Laguna", "Adeje", "San Sebastián"}; // Traer de la base de datos
 
         ArrayAdapter<String> adaptermun = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, Municipios);
         MunView.setAdapter(adaptermun);
@@ -269,7 +241,7 @@ public class MainActivity extends AppCompatActivity {
             provincia = ProvViewText;
         });
 
-        String[] Comunidades = new String[]{"Andorra", "Albania", "Prueba", "Alemania"}; // Traer de la base de datos
+        String[] Comunidades = new String[]{"Canarias", "Andorra", "Albania", "Prueba", "Alemania"}; // Traer de la base de datos
 
         ArrayAdapter<String> adapterccaa = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, Comunidades);
         ccaaView.setAdapter(adapterccaa);
@@ -323,10 +295,6 @@ public class MainActivity extends AppCompatActivity {
             ProvView.setHint(provincia);
             ccaaView.setHint(comunidadAutonoma);
 
-            if(!comunidadAutonoma.equals("")&&!comunidadAutonoma.contains("/")&&!municipio.equals("")&&!municipio.contains("/")&&!provincia.equals("")&&!provincia.contains("/")) {
-                loadButton.setEnabled(true);
-            }
-
         } catch(Exception e){
 
         }
@@ -334,217 +302,187 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void showData() {
-        /*
         DocumentReference docRef = db.collection("Municipios").document(municipio);
         DocumentReference docRefProv = db.collection("Provincias").document(provincia);
         DocumentReference docRefCCAA = db.collection("CCAA").document(comunidadAutonoma);
-        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        String tdqddbb = document.getData().get("tdq").toString();
-                        if(tdqddbb.equals("-"))
-                            mbbddtdqA.setText(nohay);
-                        else
-                            mbbddtdqA.setText(tdqddbb);
-
-                        String cpddbb = document.getData().get("cp").toString();
-                        if(cpddbb.equals("false"))
-                            mbbddcpA.setText(nohay);
-                        else
-                            mbbddcpA.setText(cpddbb);
-
-                        String rddbb = document.getData().get("r").toString();
-                        if(rddbb.equals(""))
-                            mbbddrA.setText(nohay);
-                        else
-                            mbbddrA.setText(rddbb);
-
-                        String hmhddbb = document.getData().get("hmh").toString();
-                        if(hmhddbb.equals(""))
-                            mbbddhmhA.setText(nohay);
-                        else
-                            mbbddhmhA.setText(hmhddbb);
-
-                        String iddbb = document.getData().get("i").toString();
-                        if(iddbb.equals(""))
-                            mbbddiA.setText(nohay);
-                        else
-                            mbbddiA.setText(iddbb);
-
-                        String eddbb = document.getData().get("e").toString();
-                        if(eddbb.equals(""))
-                            mbbddeA.setText(nohay);
-                        else
-                            mbbddeA.setText(eddbb);
-
-                        String hmonddbb = document.getData().get("hmon").toString();
-                        if(hmonddbb.equals(""))
-                            mbbddhmonA.setText(nohay);
-                        else
-                            mbbddhmonA.setText(hmonddbb);
+        DocumentReference Rlength = db.collection("Listas").document("Restricciones");
+        Rlength.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+                if (document.exists()) {
+                    long len = (long) document.getData().get("len");
+                    if(!infos.isEmpty()){
+                        ConstraintLayout layout = (ConstraintLayout) CargandoMun.getParent();
+                        for(TextView r : infos){
+                            layout.removeView(r);
+                        }
                     }
-                    else {
-                        mbbddtdqA.setText(ned);
-                        mbbddcpA.setText(ned);
-                        mbbddrA.setText(ned);
-                        mbbddhmhA.setText(ned);
-                        mbbddiA.setText(ned);
-                        mbbddeA.setText(ned);
-                        mbbddhmonA.setText(ned);
+                    if(!infosCCAA.isEmpty()){
+                        ConstraintLayout layout = (ConstraintLayout) CargandoCCAA.getParent();
+                        for(TextView r : infosCCAA){
+                            layout.removeView(r);
+                        }
                     }
-                } else {
-                    mbbddtdqA.setText(eelp);
-                    mbbddcpA.setText(eelp);
-                    mbbddrA.setText(eelp);
-                    mbbddhmhA.setText(eelp);
-                    mbbddiA.setText(eelp);
-                    mbbddeA.setText(eelp);
-                    mbbddhmonA.setText(eelp);
+                    if(!infos.isEmpty()){
+                        ConstraintLayout layout = (ConstraintLayout) CargandoProv.getParent();
+                        for(TextView r : infosProv){
+                            layout.removeView(r);
+                        }
+                    }
+                    infos.clear();
+                    infosCCAA.clear();
+                    infosProv.clear();
+                    lid = 1000;
+                    docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task1) {
+                            if (task1.isSuccessful()) {
+                                DocumentSnapshot document = task1.getResult();
+                                if (document.exists()) {
+                                    ConstraintLayout layout = (ConstraintLayout) CargandoMun.getParent();
+                                    int idlast = -1;
+                                    Boolean dentro = false;
+                                    for(int i = 0; i < len; i++){
+                                        try{
+                                            String info = document.getData().get("r" + i).toString();
+                                            ConstraintSet set = new ConstraintSet();
+                                            TextView restriction = new TextView(MainActivity.this);
+                                            restriction.setId(lid);
+                                            ConstraintLayout.LayoutParams lp = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
+                                            layout.addView(restriction, lp);
+                                            restriction.setText(info);
+                                            restriction.setTextSize(14);
+                                            restriction.setTextColor(Color.parseColor("#BBBBBB"));
+                                            set.clone(layout);
+                                            if(idlast == -1)
+                                                set.connect(restriction.getId(),ConstraintSet.TOP,ConstraintSet.PARENT_ID, ConstraintSet.TOP);
+                                            else
+                                                set.connect(restriction.getId(),ConstraintSet.TOP,idlast, ConstraintSet.BOTTOM);
+                                            set.connect(restriction.getId(),ConstraintSet.START,ConstraintSet.PARENT_ID,ConstraintSet.START, 50);
+                                            set.applyTo(layout);
+                                            idlast = lid;
+                                            lid++;
+                                            infos.add(restriction);
+                                            dentro = true;
+                                        }
+                                        catch(Exception err){ }
+                                        if(dentro == false){
+                                            CargandoMun.setText("Ninguna restricción activa");
+                                        }
+                                        else{
+                                            CargandoMun.setText("");
+                                        }
+                                    }
+                                }
+                                else {
+                                    CargandoMun.setText("Error en la petición");
+                                }
+                            } else {
+                                CargandoMun.setText("Error en la petición");
+                            }
+                        }
+                    });
+                    docRefCCAA.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task2) {
+                            if (task2.isSuccessful()) {
+                                DocumentSnapshot document = task2.getResult();
+                                if (document.exists()) {
+                                    ConstraintLayout layout = (ConstraintLayout) CargandoCCAA.getParent();
+                                    int idlast = -1;
+                                    Boolean dentro = false;
+                                    for(int i = 0; i < len; i++){
+                                        try{
+                                            String info = document.getData().get("r" + i).toString();
+                                            ConstraintSet set = new ConstraintSet();
+                                            TextView restriction = new TextView(MainActivity.this);
+                                            restriction.setId(lid);
+                                            ConstraintLayout.LayoutParams lp = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
+                                            layout.addView(restriction, lp);
+                                            restriction.setText(info);
+                                            restriction.setTextSize(14);
+                                            restriction.setTextColor(Color.parseColor("#BBBBBB"));
+                                            set.clone(layout);
+                                            if(idlast == -1)
+                                                set.connect(restriction.getId(),ConstraintSet.TOP,ConstraintSet.PARENT_ID, ConstraintSet.TOP);
+                                            else
+                                                set.connect(restriction.getId(),ConstraintSet.TOP,idlast, ConstraintSet.BOTTOM);
+                                            set.connect(restriction.getId(),ConstraintSet.START,ConstraintSet.PARENT_ID,ConstraintSet.START, 50);
+                                            set.applyTo(layout);
+                                            idlast = lid;
+                                            lid++;
+                                            infosCCAA.add(restriction);
+                                            dentro = true;
+                                        }
+                                        catch(Exception err){ }
+                                    }
+                                    if(dentro == false){
+                                        CargandoCCAA.setText("Ninguna restricción activa");
+                                    }
+                                    else{
+                                        CargandoCCAA.setText("");
+                                    }
+                                }
+                                else {
+                                    CargandoCCAA.setText("Error en la petición");
+                                }
+                            } else {
+                                CargandoCCAA.setText("Error en la petición");
+                            }
+                        }
+                    });
+                    docRefProv.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task3) {
+                            if (task3.isSuccessful()) {
+                                DocumentSnapshot document = task3.getResult();
+                                if (document.exists()) {
+                                    ConstraintLayout layout = (ConstraintLayout) CargandoProv.getParent();
+                                    int idlast = -1;
+                                    Boolean dentro = false;
+                                    for(int i = 0; i < len; i++){
+                                        try{
+                                            String info = document.getData().get("r" + i).toString();
+                                            ConstraintSet set = new ConstraintSet();
+                                            TextView restriction = new TextView(MainActivity.this);
+                                            restriction.setId(lid);
+                                            ConstraintLayout.LayoutParams lp = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
+                                            layout.addView(restriction, lp);
+                                            restriction.setText(info);
+                                            restriction.setTextSize(14);
+                                            restriction.setTextColor(Color.parseColor("#BBBBBB"));
+                                            set.clone(layout);
+                                            if(idlast == -1)
+                                                set.connect(restriction.getId(),ConstraintSet.TOP,ConstraintSet.PARENT_ID, ConstraintSet.TOP);
+                                            else
+                                                set.connect(restriction.getId(),ConstraintSet.TOP,idlast, ConstraintSet.BOTTOM);
+                                            set.connect(restriction.getId(),ConstraintSet.START,ConstraintSet.PARENT_ID,ConstraintSet.START, 50);
+                                            set.applyTo(layout);
+                                            idlast = lid;
+                                            lid++;
+                                            infosProv.add(restriction);
+                                            dentro = true;
+                                        }
+                                        catch(Exception err){ }
+                                        if(dentro == false){
+                                            CargandoProv.setText("Ninguna restricción activa");
+                                        }
+                                        else{
+                                            CargandoProv.setText("");
+                                        }
+                                    }
+                                }
+                                else {
+                                    CargandoProv.setText("Error en la petición");
+                                }
+                            } else {
+                                CargandoProv.setText("Error en la petición");
+                            }
+                        }
+                    });
                 }
             }
         });
-
-        docRefProv.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        String tdqddbb = document.getData().get("tdq").toString();
-                        if(tdqddbb.equals("-"))
-                            pbbddtdqA.setText(nohay);
-                        else
-                            pbbddtdqA.setText(tdqddbb);
-
-                        String cpddbb = document.getData().get("cp").toString();
-                        if(cpddbb.equals("false"))
-                            pbbddcpA.setText(nohay);
-                        else
-                            pbbddcpA.setText(cpddbb);
-
-                        String rddbb = document.getData().get("r").toString();
-                        if(rddbb.equals(""))
-                            pbbddrA.setText(nohay);
-                        else
-                            pbbddrA.setText(rddbb);
-
-                        String hmhddbb = document.getData().get("hmh").toString();
-                        if(hmhddbb.equals(""))
-                            pbbddhmhA.setText(nohay);
-                        else
-                            pbbddhmhA.setText(hmhddbb);
-
-                        String iddbb = document.getData().get("i").toString();
-                        if(iddbb.equals(""))
-                            pbbddiA.setText(nohay);
-                        else
-                            pbbddiA.setText(iddbb);
-
-                        String eddbb = document.getData().get("e").toString();
-                        if(eddbb.equals(""))
-                            pbbddeA.setText(nohay);
-                        else
-                            pbbddeA.setText(eddbb);
-
-                        String hmonddbb = document.getData().get("hmon").toString();
-                        if(hmonddbb.equals(""))
-                            pbbddhmonA.setText(nohay);
-                        else
-                            pbbddhmonA.setText(hmonddbb);
-                    }
-                    else {
-                        pbbddtdqA.setText(ned);
-                        pbbddcpA.setText(ned);
-                        pbbddrA.setText(ned);
-                        pbbddhmhA.setText(ned);
-                        pbbddiA.setText(ned);
-                        pbbddeA.setText(ned);
-                        pbbddhmonA.setText(ned);
-                    }
-                } else {
-                    pbbddtdqA.setText(eelp);
-                    pbbddcpA.setText(eelp);
-                    pbbddrA.setText(eelp);
-                    pbbddhmhA.setText(eelp);
-                    pbbddiA.setText(eelp);
-                    pbbddeA.setText(eelp);
-                    pbbddhmonA.setText(eelp);
-                }
-            }
-        });
-
-        docRefCCAA.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        String tdqddbb = document.getData().get("tdq").toString();
-                        if(tdqddbb.equals("-"))
-                            bbddtdqA.setText(nohay);
-                        else
-                            bbddtdqA.setText(tdqddbb);
-
-                        String cpddbb = document.getData().get("cp").toString();
-                        if(cpddbb.equals("false"))
-                            bbddcpA.setText(nohay);
-                        else
-                            bbddcpA.setText(cpddbb);
-
-                        String rddbb = document.getData().get("r").toString();
-                        if(rddbb.equals(""))
-                            bbddrA.setText(nohay);
-                        else
-                            bbddrA.setText(rddbb);
-
-                        String hmhddbb = document.getData().get("hmh").toString();
-                        if(hmhddbb.equals(""))
-                            bbddhmhA.setText(nohay);
-                        else
-                            bbddhmhA.setText(hmhddbb);
-
-                        String iddbb = document.getData().get("i").toString();
-                        if(iddbb.equals(""))
-                            bbddiA.setText(nohay);
-                        else
-                            bbddiA.setText(iddbb);
-
-                        String eddbb = document.getData().get("e").toString();
-                        if(eddbb.equals(""))
-                            bbddeA.setText(nohay);
-                        else
-                            bbddeA.setText(eddbb);
-
-                        String hmonddbb = document.getData().get("hmon").toString();
-                        if(hmonddbb.equals(""))
-                            bbddhmonA.setText(nohay);
-                        else
-                            bbddhmonA.setText(hmonddbb);
-                    }
-                    else {
-                        bbddtdqA.setText(ned);
-                        bbddcpA.setText(ned);
-                        bbddrA.setText(ned);
-                        bbddhmhA.setText(ned);
-                        bbddiA.setText(ned);
-                        bbddeA.setText(ned);
-                        bbddhmonA.setText(ned);
-                    }
-                } else {
-                    bbddtdqA.setText(eelp);
-                    bbddcpA.setText(eelp);
-                    bbddrA.setText(eelp);
-                    bbddhmhA.setText(eelp);
-                    bbddiA.setText(eelp);
-                    bbddeA.setText(eelp);
-                    bbddhmonA.setText(eelp);
-                }
-            }
-        });
-         */
     }
 
     public boolean navigation(MenuItem item){

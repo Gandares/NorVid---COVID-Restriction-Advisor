@@ -6,438 +6,161 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="204dp"
+        android:layout_height="28dp"
+        android:layout_marginTop="10dp"
+        android:text="Comunidad autonoma"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <ScrollView
+        android:id="@+id/scrollCCAA"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="150dp"
+        android:layout_marginTop="10dp"
         android:orientation="vertical"
-        tools:layout_editor_absoluteX="36dp"
-        tools:layout_editor_absoluteY="-16dp">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ccaaView">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
             <TextView
-                android:id="@+id/textView2"
-                android:layout_width="204dp"
-                android:layout_height="28dp"
-                android:layout_marginTop="50dp"
-                android:text="Comunidad autonoma"
-                android:textSize="18sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/textView3"
-                android:layout_width="94dp"
-                android:layout_height="26dp"
-                android:layout_marginTop="30dp"
-                android:text="Provincia"
-                android:textSize="18sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/hmonA" />
-
-            <TextView
-                android:id="@+id/textView4"
-                android:layout_width="104dp"
-                android:layout_height="25dp"
-                android:layout_marginTop="40dp"
-                android:text="Municipio"
-                android:textSize="18sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/phmonA" />
-
-            <Button
-                android:id="@+id/loadButton"
+                android:id="@+id/CargandoCCAA"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:text="Cargar"
-                app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
+                android:layout_marginTop="60dp"
+                android:text="Cargando..."
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/mhmonA" />
-
-            <com.google.android.material.bottomnavigation.BottomNavigationView
-                android:id="@+id/bottom_navigation"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:itemIconTint="#fff"
-                app:itemTextColor="#fff"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:menu="@menu/nav_menu" />
-
-            <TextView
-                android:id="@+id/tdqA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="30dp"
-                android:layout_marginLeft="30dp"
-                android:layout_marginTop="20dp"
-                android:text="Toque de queda: "
-                app:layout_constraintStart_toStartOf="@+id/textView2"
-                app:layout_constraintTop_toBottomOf="@+id/textView2" />
-
-            <TextView
-                android:id="@+id/bbddtdqA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Cargando..."
-                app:layout_constraintStart_toEndOf="@+id/tdqA"
-                app:layout_constraintTop_toTopOf="@+id/tdqA" />
-
-            <TextView
-                android:id="@+id/cpA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Cierre perimetral: "
-                app:layout_constraintStart_toStartOf="@+id/tdqA"
-                app:layout_constraintTop_toBottomOf="@+id/tdqA" />
-
-            <TextView
-                android:id="@+id/bbddcpA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Cargando..."
-                app:layout_constraintStart_toEndOf="@+id/cpA"
-                app:layout_constraintTop_toBottomOf="@+id/tdqA" />
-
-            <TextView
-                android:id="@+id/rA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Máximas personas reunidas: "
-                app:layout_constraintStart_toStartOf="@+id/cpA"
-                app:layout_constraintTop_toBottomOf="@+id/cpA" />
-
-            <TextView
-                android:id="@+id/bbddrA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Cargando..."
-                app:layout_constraintStart_toEndOf="@+id/rA"
-                app:layout_constraintTop_toTopOf="@+id/rA" />
-
-            <TextView
-                android:id="@+id/hmhA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Hora máxima hostelería: "
-                app:layout_constraintStart_toStartOf="@+id/rA"
-                app:layout_constraintTop_toBottomOf="@+id/rA" />
-
-            <TextView
-                android:id="@+id/bbddhmhA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Cargando..."
-                app:layout_constraintStart_toEndOf="@+id/hmhA"
-                app:layout_constraintTop_toBottomOf="@+id/rA" />
-
-            <TextView
-                android:id="@+id/iA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Máximo de personas en interiores: "
-                app:layout_constraintStart_toStartOf="@+id/hmhA"
-                app:layout_constraintTop_toBottomOf="@+id/hmhA" />
-
-            <TextView
-                android:id="@+id/bbddiA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Cargando..."
-                app:layout_constraintStart_toEndOf="@+id/iA"
-                app:layout_constraintTop_toTopOf="@+id/iA" />
-
-            <TextView
-                android:id="@+id/eA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Máximo de personas en exterior: "
-                app:layout_constraintStart_toStartOf="@+id/iA"
-                app:layout_constraintTop_toBottomOf="@+id/iA" />
-
-            <TextView
-                android:id="@+id/bbddeA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Cargando..."
-                app:layout_constraintStart_toEndOf="@+id/eA"
-                app:layout_constraintTop_toTopOf="@+id/eA" />
-
-            <TextView
-                android:id="@+id/hmonA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Hora máxima ocio nocturno: "
-                app:layout_constraintStart_toStartOf="@+id/eA"
-                app:layout_constraintTop_toBottomOf="@+id/eA" />
-
-            <TextView
-                android:id="@+id/bbddhmonA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Cargando..."
-                app:layout_constraintStart_toEndOf="@+id/hmonA"
-                app:layout_constraintTop_toTopOf="@+id/hmonA" />
-
-            <TextView
-                android:id="@+id/ptdqA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="30dp"
-                android:layout_marginLeft="30dp"
-                android:layout_marginTop="20dp"
-                android:text="Toque de queda: "
-                app:layout_constraintStart_toStartOf="@+id/textView3"
-                app:layout_constraintTop_toBottomOf="@+id/textView3" />
-
-            <TextView
-                android:id="@+id/pbbddtdqA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Cargando..."
-                app:layout_constraintStart_toEndOf="@+id/ptdqA"
-                app:layout_constraintTop_toTopOf="@+id/ptdqA" />
-
-            <TextView
-                android:id="@+id/pcpA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Cierre perimetral: "
-                app:layout_constraintStart_toStartOf="@+id/ptdqA"
-                app:layout_constraintTop_toBottomOf="@+id/ptdqA" />
-
-            <TextView
-                android:id="@+id/pbbddcpA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Cargando..."
-                app:layout_constraintStart_toEndOf="@+id/pcpA"
-                app:layout_constraintTop_toBottomOf="@+id/ptdqA" />
-
-            <TextView
-                android:id="@+id/prA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Máximas personas reunidas: "
-                app:layout_constraintStart_toStartOf="@+id/pcpA"
-                app:layout_constraintTop_toBottomOf="@+id/pcpA" />
-
-            <TextView
-                android:id="@+id/pbbddrA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Cargando..."
-                app:layout_constraintStart_toEndOf="@+id/prA"
-                app:layout_constraintTop_toTopOf="@+id/prA" />
-
-            <TextView
-                android:id="@+id/phmhA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Hora máxima hostelería: "
-                app:layout_constraintStart_toStartOf="@+id/prA"
-                app:layout_constraintTop_toBottomOf="@+id/prA" />
-
-            <TextView
-                android:id="@+id/pbbddhmhA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Cargando..."
-                app:layout_constraintStart_toEndOf="@+id/phmhA"
-                app:layout_constraintTop_toBottomOf="@+id/prA" />
-
-            <TextView
-                android:id="@+id/piA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Máximo de personas en interiores: "
-                app:layout_constraintStart_toStartOf="@+id/phmhA"
-                app:layout_constraintTop_toBottomOf="@+id/phmhA" />
-
-            <TextView
-                android:id="@+id/pbbddiA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Cargando..."
-                app:layout_constraintStart_toEndOf="@+id/piA"
-                app:layout_constraintTop_toTopOf="@+id/piA" />
-
-            <TextView
-                android:id="@+id/peA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Máximo de personas en exterior: "
-                app:layout_constraintStart_toStartOf="@+id/piA"
-                app:layout_constraintTop_toBottomOf="@+id/piA" />
-
-            <TextView
-                android:id="@+id/pbbddeA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Cargando..."
-                app:layout_constraintStart_toEndOf="@+id/peA"
-                app:layout_constraintTop_toTopOf="@+id/peA" />
-
-            <TextView
-                android:id="@+id/phmonA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Hora máxima ocio nocturno: "
-                app:layout_constraintStart_toStartOf="@+id/peA"
-                app:layout_constraintTop_toBottomOf="@+id/peA" />
-
-            <TextView
-                android:id="@+id/pbbddhmonA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Cargando..."
-                app:layout_constraintStart_toEndOf="@+id/phmonA"
-                app:layout_constraintTop_toTopOf="@+id/phmonA" />
-
-            <TextView
-                android:id="@+id/mtdqA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="30dp"
-                android:layout_marginLeft="30dp"
-                android:layout_marginTop="20dp"
-                android:text="Toque de queda: "
-                app:layout_constraintStart_toStartOf="@+id/textView4"
-                app:layout_constraintTop_toBottomOf="@+id/textView4" />
-
-            <TextView
-                android:id="@+id/mbbddtdqA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Cargando..."
-                app:layout_constraintStart_toEndOf="@+id/mtdqA"
-                app:layout_constraintTop_toTopOf="@+id/mtdqA" />
-
-            <TextView
-                android:id="@+id/mcpA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Cierre perimetral: "
-                app:layout_constraintStart_toStartOf="@+id/mtdqA"
-                app:layout_constraintTop_toBottomOf="@+id/mtdqA" />
-
-            <TextView
-                android:id="@+id/mbbddcpA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Cargando..."
-                app:layout_constraintStart_toEndOf="@+id/mcpA"
-                app:layout_constraintTop_toBottomOf="@+id/mtdqA" />
-
-            <TextView
-                android:id="@+id/mrA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Máximas personas reunidas: "
-                app:layout_constraintStart_toStartOf="@+id/mcpA"
-                app:layout_constraintTop_toBottomOf="@+id/mcpA" />
-
-            <TextView
-                android:id="@+id/mbbddrA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Cargando..."
-                app:layout_constraintStart_toEndOf="@+id/mrA"
-                app:layout_constraintTop_toTopOf="@+id/mrA" />
-
-            <TextView
-                android:id="@+id/mhmhA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Hora máxima hostelería: "
-                app:layout_constraintStart_toStartOf="@+id/mrA"
-                app:layout_constraintTop_toBottomOf="@+id/mrA" />
-
-            <TextView
-                android:id="@+id/mbbddhmhA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Cargando..."
-                app:layout_constraintStart_toEndOf="@+id/mhmhA"
-                app:layout_constraintTop_toBottomOf="@+id/mrA" />
-
-            <TextView
-                android:id="@+id/miA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Máximo de personas en interiores: "
-                app:layout_constraintStart_toStartOf="@+id/mhmhA"
-                app:layout_constraintTop_toBottomOf="@+id/mhmhA" />
-
-            <TextView
-                android:id="@+id/mbbddiA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Cargando..."
-                app:layout_constraintStart_toEndOf="@+id/miA"
-                app:layout_constraintTop_toTopOf="@+id/miA" />
-
-            <TextView
-                android:id="@+id/meA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Máximo de personas en exterior: "
-                app:layout_constraintStart_toStartOf="@+id/miA"
-                app:layout_constraintTop_toBottomOf="@+id/miA" />
-
-            <TextView
-                android:id="@+id/mbbddeA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Cargando..."
-                app:layout_constraintStart_toEndOf="@+id/meA"
-                app:layout_constraintTop_toTopOf="@+id/meA" />
-
-            <TextView
-                android:id="@+id/mhmonA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Hora máxima ocio nocturno: "
-                app:layout_constraintStart_toStartOf="@+id/meA"
-                app:layout_constraintTop_toBottomOf="@+id/meA" />
-
-            <TextView
-                android:id="@+id/mbbddhmonA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Cargando..."
-                app:layout_constraintStart_toEndOf="@+id/mhmonA"
-                app:layout_constraintTop_toTopOf="@+id/mhmonA" />
-
-            <AutoCompleteTextView
-                android:id="@+id/ccaaView"
-                android:layout_width="190dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintBottom_toBottomOf="@+id/textView2"
-                app:layout_constraintStart_toEndOf="@+id/textView2"
-                app:layout_constraintTop_toTopOf="@+id/textView2" />
-
-            <AutoCompleteTextView
-                android:id="@+id/ProvView"
-                android:layout_width="300dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintBottom_toBottomOf="@+id/textView3"
-                app:layout_constraintStart_toEndOf="@+id/textView3"
-                app:layout_constraintTop_toTopOf="@+id/textView3" />
-
-            <AutoCompleteTextView
-                android:id="@+id/MunView"
-                android:layout_width="290dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintBottom_toBottomOf="@+id/textView4"
-                app:layout_constraintStart_toEndOf="@+id/textView4"
-                app:layout_constraintTop_toTopOf="@+id/textView4" />
-
+                app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
-
     </ScrollView>
+
+    <ScrollView
+        android:id="@+id/scrollProv"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:layout_marginTop="10dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ProvView">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/CargandoProv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="60dp"
+                android:text="Cargando..."
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+
+    <ScrollView
+        android:id="@+id/scrollMun"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:layout_marginTop="10dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/MunView">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/CargandoMun"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="60dp"
+                android:text="Cargando..."
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="94dp"
+        android:layout_height="26dp"
+        android:layout_marginTop="20dp"
+        android:text="Provincia"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/scrollCCAA" />
+
+    <TextView
+        android:id="@+id/muni"
+        android:layout_width="104dp"
+        android:layout_height="25dp"
+        android:layout_marginTop="20dp"
+        android:text="Municipio"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/scrollProv" />
+
+    <AutoCompleteTextView
+        android:id="@+id/ccaaView"
+        android:layout_width="190dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/textView2"
+        app:layout_constraintStart_toEndOf="@+id/textView2"
+        app:layout_constraintTop_toTopOf="@+id/textView2" />
+
+    <AutoCompleteTextView
+        android:id="@+id/ProvView"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/textView3"
+        app:layout_constraintStart_toEndOf="@+id/textView3"
+        app:layout_constraintTop_toTopOf="@+id/textView3" />
+
+    <AutoCompleteTextView
+        android:id="@+id/MunView"
+        android:layout_width="290dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/muni"
+        app:layout_constraintStart_toEndOf="@+id/muni"
+        app:layout_constraintTop_toTopOf="@+id/muni" />
+
+
+    <Button
+        android:id="@+id/loadButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Cargar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/scrollMun" />
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:itemIconTint="#fff"
+        app:itemTextColor="#fff"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:menu="@menu/nav_menu" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
