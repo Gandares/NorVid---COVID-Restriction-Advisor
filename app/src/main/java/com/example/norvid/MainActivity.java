@@ -36,15 +36,18 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import org.w3c.dom.Text;
 
 import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -302,184 +305,182 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void showData() {
-        DocumentReference docRef = db.collection("Municipios").document(municipio);
-        DocumentReference docRefProv = db.collection("Provincias").document(provincia);
-        DocumentReference docRefCCAA = db.collection("CCAA").document(comunidadAutonoma);
-        DocumentReference Rlength = db.collection("Listas").document("Restricciones");
-        Rlength.get().addOnCompleteListener(task -> {
+        if(!infos.isEmpty()){
+            ConstraintLayout layout = (ConstraintLayout) CargandoMun.getParent();
+            for(TextView r : infos){
+                layout.removeView(r);
+            }
+        }
+        if(!infosCCAA.isEmpty()){
+            ConstraintLayout layout = (ConstraintLayout) CargandoCCAA.getParent();
+            for(TextView r : infosCCAA){
+                layout.removeView(r);
+            }
+        }
+        if(!infos.isEmpty()){
+            ConstraintLayout layout = (ConstraintLayout) CargandoProv.getParent();
+            for(TextView r : infosProv){
+                layout.removeView(r);
+            }
+        }
+        infos.clear();
+        infosCCAA.clear();
+        infosProv.clear();
+        lid = 1000;
+
+        CollectionReference docRef = db.collection("Municipios").document(municipio).collection("Restricciones");
+        CollectionReference docRefProv = db.collection("Provincias").document(provincia).collection("Restricciones");
+        CollectionReference docRefCCAA = db.collection("CCAA").document(comunidadAutonoma).collection("Restricciones");
+        docRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                DocumentSnapshot document = task.getResult();
-                if (document.exists()) {
-                    long len = (long) document.getData().get("len");
-                    if(!infos.isEmpty()){
-                        ConstraintLayout layout = (ConstraintLayout) CargandoMun.getParent();
-                        for(TextView r : infos){
-                            layout.removeView(r);
+                List<DocumentSnapshot> documents = task.getResult().getDocuments();
+                try {
+                    DocumentSnapshot totry = documents.get(0);
+                    ConstraintLayout layout = (ConstraintLayout) CargandoMun.getParent();
+                    int idlast = -1;
+                    for (int i = 0; i < documents.size(); i++) {
+                        boolean first = true;
+                        long datalen = (long) documents.get(i).getData().get("len");
+                        for (int j = 0; j < datalen; j++) {
+                            ConstraintSet set = new ConstraintSet();
+                            TextView restriction = new TextView(MainActivity.this);
+                            restriction.setId(lid);
+                            ConstraintLayout.LayoutParams lp = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
+                            layout.addView(restriction, lp);
+                            if ((String) documents.get(i).getData().get(Integer.toString(j)) != null) {
+                                restriction.setText((String) documents.get(i).getData().get(Integer.toString(j)));
+                            } else {
+                                restriction.setText((String) documents.get(i).getData().get("data" + j));
+                            }
+                            restriction.setTextSize(14);
+                            restriction.setTextColor(Color.parseColor("#BBBBBB"));
+                            set.clone(layout);
+                            if (idlast == -1) {
+                                set.connect(restriction.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
+                                set.connect(restriction.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 50);
+                                first = false;
+                            } else {
+                                if (first) {
+                                    set.connect(restriction.getId(), ConstraintSet.TOP, idlast, ConstraintSet.BOTTOM);
+                                    set.connect(restriction.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 50);
+                                    first = false;
+                                } else {
+                                    set.connect(restriction.getId(), ConstraintSet.START, idlast, ConstraintSet.END);
+                                    set.connect(restriction.getId(), ConstraintSet.TOP, idlast, ConstraintSet.TOP);
+                                    set.connect(restriction.getId(), ConstraintSet.BOTTOM, idlast, ConstraintSet.BOTTOM);
+                                }
+                            }
+                            set.applyTo(layout);
+                            idlast = lid;
+                            lid++;
+                            infos.add(restriction);
+                            CargandoMun.setText("");
                         }
                     }
-                    if(!infosCCAA.isEmpty()){
-                        ConstraintLayout layout = (ConstraintLayout) CargandoCCAA.getParent();
-                        for(TextView r : infosCCAA){
-                            layout.removeView(r);
+                } catch (Exception err) {
+                    CargandoMun.setText("Ninguna restricción activa");
+                }
+            }
+        });
+        docRefCCAA.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                List<DocumentSnapshot> documents = task.getResult().getDocuments();
+                try {
+                    DocumentSnapshot totry = documents.get(0);
+                    ConstraintLayout layout = (ConstraintLayout) CargandoCCAA.getParent();
+                    int idlast = -1;
+                    for (int i = 0; i < documents.size(); i++) {
+                        boolean first = true;
+                        long datalen = (long) documents.get(i).getData().get("len");
+                        for (int j = 0; j < datalen; j++) {
+                            ConstraintSet set = new ConstraintSet();
+                            TextView restriction = new TextView(MainActivity.this);
+                            restriction.setId(lid);
+                            ConstraintLayout.LayoutParams lp = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
+                            layout.addView(restriction, lp);
+                            if ((String) documents.get(i).getData().get(Integer.toString(j)) != null) {
+                                restriction.setText((String) documents.get(i).getData().get(Integer.toString(j)));
+                            } else {
+                                restriction.setText((String) documents.get(i).getData().get("data" + j));
+                            }
+                            restriction.setTextSize(14);
+                            restriction.setTextColor(Color.parseColor("#BBBBBB"));
+                            set.clone(layout);
+                            if (idlast == -1) {
+                                set.connect(restriction.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
+                                set.connect(restriction.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 50);
+                                first = false;
+                            } else {
+                                if (first) {
+                                    set.connect(restriction.getId(), ConstraintSet.TOP, idlast, ConstraintSet.BOTTOM);
+                                    set.connect(restriction.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 50);
+                                    first = false;
+                                } else {
+                                    set.connect(restriction.getId(), ConstraintSet.START, idlast, ConstraintSet.END);
+                                    set.connect(restriction.getId(), ConstraintSet.TOP, idlast, ConstraintSet.TOP);
+                                    set.connect(restriction.getId(), ConstraintSet.BOTTOM, idlast, ConstraintSet.BOTTOM);
+                                }
+                            }
+                            set.applyTo(layout);
+                            idlast = lid;
+                            lid++;
+                            infos.add(restriction);
+                            CargandoCCAA.setText("");
                         }
                     }
-                    if(!infos.isEmpty()){
-                        ConstraintLayout layout = (ConstraintLayout) CargandoProv.getParent();
-                        for(TextView r : infosProv){
-                            layout.removeView(r);
+                } catch (Exception err) {
+                    CargandoCCAA.setText("Ninguna restricción activa");
+                }
+            }
+        });
+        docRefProv.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                List<DocumentSnapshot> documents = task.getResult().getDocuments();
+                try {
+                    DocumentSnapshot totry = documents.get(0);
+                    ConstraintLayout layout = (ConstraintLayout) CargandoProv.getParent();
+                    int idlast = -1;
+                    for (int i = 0; i < documents.size(); i++) {
+                        boolean first = true;
+                        long datalen = (long) documents.get(i).getData().get("len");
+                        for (int j = 0; j < datalen; j++) {
+                            ConstraintSet set = new ConstraintSet();
+                            TextView restriction = new TextView(MainActivity.this);
+                            restriction.setId(lid);
+                            ConstraintLayout.LayoutParams lp = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
+                            layout.addView(restriction, lp);
+                            if ((String) documents.get(i).getData().get(Integer.toString(j)) != null) {
+                                restriction.setText((String) documents.get(i).getData().get(Integer.toString(j)));
+                            } else {
+                                restriction.setText((String) documents.get(i).getData().get("data" + j));
+                            }
+                            restriction.setTextSize(14);
+                            restriction.setTextColor(Color.parseColor("#BBBBBB"));
+                            set.clone(layout);
+                            if (idlast == -1) {
+                                set.connect(restriction.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
+                                set.connect(restriction.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 50);
+                                first = false;
+                            } else {
+                                if (first) {
+                                    set.connect(restriction.getId(), ConstraintSet.TOP, idlast, ConstraintSet.BOTTOM);
+                                    set.connect(restriction.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 50);
+                                    first = false;
+                                } else {
+                                    set.connect(restriction.getId(), ConstraintSet.START, idlast, ConstraintSet.END);
+                                    set.connect(restriction.getId(), ConstraintSet.TOP, idlast, ConstraintSet.TOP);
+                                    set.connect(restriction.getId(), ConstraintSet.BOTTOM, idlast, ConstraintSet.BOTTOM);
+                                }
+                            }
+                            set.applyTo(layout);
+                            idlast = lid;
+                            lid++;
+                            infos.add(restriction);
+                            CargandoProv.setText("");
                         }
                     }
-                    infos.clear();
-                    infosCCAA.clear();
-                    infosProv.clear();
-                    lid = 1000;
-                    docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task1) {
-                            if (task1.isSuccessful()) {
-                                DocumentSnapshot document = task1.getResult();
-                                if (document.exists()) {
-                                    ConstraintLayout layout = (ConstraintLayout) CargandoMun.getParent();
-                                    int idlast = -1;
-                                    Boolean dentro = false;
-                                    for(int i = 0; i < len; i++){
-                                        try{
-                                            String info = document.getData().get("r" + i).toString();
-                                            ConstraintSet set = new ConstraintSet();
-                                            TextView restriction = new TextView(MainActivity.this);
-                                            restriction.setId(lid);
-                                            ConstraintLayout.LayoutParams lp = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
-                                            layout.addView(restriction, lp);
-                                            restriction.setText(info);
-                                            restriction.setTextSize(14);
-                                            restriction.setTextColor(Color.parseColor("#BBBBBB"));
-                                            set.clone(layout);
-                                            if(idlast == -1)
-                                                set.connect(restriction.getId(),ConstraintSet.TOP,ConstraintSet.PARENT_ID, ConstraintSet.TOP);
-                                            else
-                                                set.connect(restriction.getId(),ConstraintSet.TOP,idlast, ConstraintSet.BOTTOM);
-                                            set.connect(restriction.getId(),ConstraintSet.START,ConstraintSet.PARENT_ID,ConstraintSet.START, 50);
-                                            set.applyTo(layout);
-                                            idlast = lid;
-                                            lid++;
-                                            infos.add(restriction);
-                                            dentro = true;
-                                        }
-                                        catch(Exception err){ }
-                                        if(dentro == false){
-                                            CargandoMun.setText("Ninguna restricción activa");
-                                        }
-                                        else{
-                                            CargandoMun.setText("");
-                                        }
-                                    }
-                                }
-                                else {
-                                    CargandoMun.setText("Error en la petición");
-                                }
-                            } else {
-                                CargandoMun.setText("Error en la petición");
-                            }
-                        }
-                    });
-                    docRefCCAA.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task2) {
-                            if (task2.isSuccessful()) {
-                                DocumentSnapshot document = task2.getResult();
-                                if (document.exists()) {
-                                    ConstraintLayout layout = (ConstraintLayout) CargandoCCAA.getParent();
-                                    int idlast = -1;
-                                    Boolean dentro = false;
-                                    for(int i = 0; i < len; i++){
-                                        try{
-                                            String info = document.getData().get("r" + i).toString();
-                                            ConstraintSet set = new ConstraintSet();
-                                            TextView restriction = new TextView(MainActivity.this);
-                                            restriction.setId(lid);
-                                            ConstraintLayout.LayoutParams lp = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
-                                            layout.addView(restriction, lp);
-                                            restriction.setText(info);
-                                            restriction.setTextSize(14);
-                                            restriction.setTextColor(Color.parseColor("#BBBBBB"));
-                                            set.clone(layout);
-                                            if(idlast == -1)
-                                                set.connect(restriction.getId(),ConstraintSet.TOP,ConstraintSet.PARENT_ID, ConstraintSet.TOP);
-                                            else
-                                                set.connect(restriction.getId(),ConstraintSet.TOP,idlast, ConstraintSet.BOTTOM);
-                                            set.connect(restriction.getId(),ConstraintSet.START,ConstraintSet.PARENT_ID,ConstraintSet.START, 50);
-                                            set.applyTo(layout);
-                                            idlast = lid;
-                                            lid++;
-                                            infosCCAA.add(restriction);
-                                            dentro = true;
-                                        }
-                                        catch(Exception err){ }
-                                    }
-                                    if(dentro == false){
-                                        CargandoCCAA.setText("Ninguna restricción activa");
-                                    }
-                                    else{
-                                        CargandoCCAA.setText("");
-                                    }
-                                }
-                                else {
-                                    CargandoCCAA.setText("Error en la petición");
-                                }
-                            } else {
-                                CargandoCCAA.setText("Error en la petición");
-                            }
-                        }
-                    });
-                    docRefProv.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task3) {
-                            if (task3.isSuccessful()) {
-                                DocumentSnapshot document = task3.getResult();
-                                if (document.exists()) {
-                                    ConstraintLayout layout = (ConstraintLayout) CargandoProv.getParent();
-                                    int idlast = -1;
-                                    Boolean dentro = false;
-                                    for(int i = 0; i < len; i++){
-                                        try{
-                                            String info = document.getData().get("r" + i).toString();
-                                            ConstraintSet set = new ConstraintSet();
-                                            TextView restriction = new TextView(MainActivity.this);
-                                            restriction.setId(lid);
-                                            ConstraintLayout.LayoutParams lp = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
-                                            layout.addView(restriction, lp);
-                                            restriction.setText(info);
-                                            restriction.setTextSize(14);
-                                            restriction.setTextColor(Color.parseColor("#BBBBBB"));
-                                            set.clone(layout);
-                                            if(idlast == -1)
-                                                set.connect(restriction.getId(),ConstraintSet.TOP,ConstraintSet.PARENT_ID, ConstraintSet.TOP);
-                                            else
-                                                set.connect(restriction.getId(),ConstraintSet.TOP,idlast, ConstraintSet.BOTTOM);
-                                            set.connect(restriction.getId(),ConstraintSet.START,ConstraintSet.PARENT_ID,ConstraintSet.START, 50);
-                                            set.applyTo(layout);
-                                            idlast = lid;
-                                            lid++;
-                                            infosProv.add(restriction);
-                                            dentro = true;
-                                        }
-                                        catch(Exception err){ }
-                                        if(dentro == false){
-                                            CargandoProv.setText("Ninguna restricción activa");
-                                        }
-                                        else{
-                                            CargandoProv.setText("");
-                                        }
-                                    }
-                                }
-                                else {
-                                    CargandoProv.setText("Error en la petición");
-                                }
-                            } else {
-                                CargandoProv.setText("Error en la petición");
-                            }
-                        }
-                    });
+                } catch (Exception err) {
+                    CargandoProv.setText("Ninguna restricción activa");
                 }
             }
         });

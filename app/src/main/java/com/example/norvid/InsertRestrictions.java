@@ -2,6 +2,8 @@ package com.example.norvid;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
@@ -18,6 +20,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,9 +32,11 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.HashMap;
 import java.util.List;
@@ -42,6 +47,7 @@ public class InsertRestrictions extends AppCompatActivity {
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private static final String TAG = "DocSnippets";
     public static final int FAST_UPDATE_INTERVAL = 5;
+    int lid = 2000;
 
     TextView cp, slash, tdq, r, hmh, i, e, hmon;
     EditText bbddtdq, bbddtdq2, bbddr, bbddhmh, bbddi, bbdde, bbddhmon;
@@ -75,113 +81,159 @@ public class InsertRestrictions extends AppCompatActivity {
         setContentView(R.layout.activity_insert_restrictions);
 
         String emailUse = getIntent().getStringExtra("email");
-/*
-        locationRequest = LocationRequest.create();
-        locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-        locationRequest.setInterval(FAST_UPDATE_INTERVAL * 1000);
-        locationCallback = new LocationCallback() {
 
-            @Override
-            public void onLocationResult(LocationResult locationResult) {
-                if (locationResult == null) {
-                    return;
-                }
-                for (Location location : locationResult.getLocations()) {
-                    if (location != null) {
-                        setup(location);
-                    }
-                }
-            }
-        };
-        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(InsertRestrictions.this);
-            fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
-        }
-*/
         provUser = "Ninguno asignado";
         ccaaUser = "Ninguno asignado";
-
-        tdqCheckBox = findViewById(R.id.tdqCheckBox);
-        rCheckBox = findViewById(R.id.rCheckBox);
-        hmhCheckBox = findViewById(R.id.hmhCheckBox);
-        iCheckBox = findViewById(R.id.iCheckBox);
-        eCheckBox = findViewById(R.id.eCheckBox);
-        hmonCheckBox = findViewById(R.id.hmonCheckBox);
-
-        cp = findViewById(R.id.cp);
-        tdq = findViewById(R.id.tdq);
-        slash = findViewById(R.id.slash);
-        r = findViewById(R.id.r);
-        hmh = findViewById(R.id.hmh);
-        i = findViewById(R.id.i);
-        e = findViewById(R.id.e);
-        hmon = findViewById(R.id.hmon);
-
-        bbddtdq = findViewById(R.id.bbddtdq);
-        bbddtdq2 = findViewById(R.id.bbddtdq2);
-        bbddcp = findViewById(R.id.bbddcp);
-        bbddr = findViewById(R.id.ddbbr);
-        bbddhmh = findViewById(R.id.bbddthmh);
-        bbddi = findViewById(R.id.ddbbi);
-        bbdde = findViewById(R.id.ddbbe);
-        bbddhmon = findViewById(R.id.bbddhmon);
-        ccaatext = findViewById(R.id.ccaatext);
-
-        ptdqCheckBox = findViewById(R.id.ptdqCheckBox);
-        prCheckBox = findViewById(R.id.prCheckBox);
-        phmhCheckBox = findViewById(R.id.phmhCheckBox);
-        piCheckBox = findViewById(R.id.piCheckBox);
-        peCheckBox = findViewById(R.id.peCheckBox);
-        phmonCheckBox = findViewById(R.id.phmonCheckBox);
-
-        pcp = findViewById(R.id.pcp);
-        ptdq = findViewById(R.id.ptdq);
-        pslash = findViewById(R.id.pslash);
-        pr = findViewById(R.id.pr);
-        phmh = findViewById(R.id.phmh);
-        pi = findViewById(R.id.pi);
-        pe = findViewById(R.id.pe);
-        phmon = findViewById(R.id.phmon);
-
-        pbbddtdq = findViewById(R.id.pbbddtdq);
-        pbbddtdq2 = findViewById(R.id.pbbddtdq2);
-        pbbddcp = findViewById(R.id.pbbddcp);
-        pbbddr = findViewById(R.id.pddbbr);
-        pbbddhmh = findViewById(R.id.pbbddthmh);
-        pbbddi = findViewById(R.id.pddbbi);
-        pbbdde = findViewById(R.id.pddbbe);
-        pbbddhmon = findViewById(R.id.pbbddhmon);
-        provtext = findViewById(R.id.provtext);
-
-        mtdqCheckBox = findViewById(R.id.mtdqCheckBox);
-        mrCheckBox = findViewById(R.id.mrCheckBox);
-        mhmhCheckBox = findViewById(R.id.mhmhCheckBox);
-        miCheckBox = findViewById(R.id.miCheckBox);
-        meCheckBox = findViewById(R.id.meCheckBox);
-        mhmonCheckBox = findViewById(R.id.mhmonCheckBox);
-
-        mcp = findViewById(R.id.mcp);
-        mtdq = findViewById(R.id.mtdq);
-        mslash = findViewById(R.id.mslash);
-        mr = findViewById(R.id.mr);
-        mhmh = findViewById(R.id.mhmh);
-        mi = findViewById(R.id.mi);
-        me = findViewById(R.id.me);
-        mhmon = findViewById(R.id.mhmon);
-
-        mbbddtdq = findViewById(R.id.mbbddtdq);
-        mbbddtdq2 = findViewById(R.id.mbbddtdq2);
-        mbbddcp = findViewById(R.id.mbbddcp);
-        mbbddr = findViewById(R.id.mddbbr);
-        mbbddhmh = findViewById(R.id.mbbddthmh);
-        mbbddi = findViewById(R.id.mddbbi);
-        mbbdde = findViewById(R.id.mddbbe);
-        mbbddhmon = findViewById(R.id.mbbddhmon);
-        muntext = findViewById(R.id.muntext);
 
         button = findViewById(R.id.savebutton);
         logout = findViewById(R.id.logOutButton);
 
+        ConstraintLayout layoutGeneral = (ConstraintLayout) logout.getParent();
+
+        DocumentReference dbuser = db.collection("users").document(emailUse);
+        dbuser.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+                if (document.exists()) {
+                    int idCabecera = -1;
+                    if (document.getData().get("CCAA") != null) {
+                        List<String> CCAAs = (List<String>) document.getData().get("CCAA");
+                        Log.d(TAG, CCAAs.size() + "AAAAAAAAAA");
+                        boolean first = true;
+                        for (int i = 0; i < CCAAs.size(); i++) {
+                            ConstraintSet set = new ConstraintSet();
+                            TextView restriction = new TextView(InsertRestrictions.this);
+                            Log.d(TAG,Integer.toString(lid));
+                            restriction.setId(lid);
+                            lid++;;
+                            ConstraintLayout.LayoutParams lp = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
+                            restriction.setText("Comunidad autónoma: " + CCAAs.get(i));
+                            restriction.setTextSize(17);
+                            restriction.setTextColor(Color.parseColor("#BBBBBB"));
+                            layoutGeneral.addView(restriction, lp);
+                            set.clone(layoutGeneral);
+                            if(idCabecera!=-1)
+                                set.connect(restriction.getId(),ConstraintSet.TOP,idCabecera,ConstraintSet.BOTTOM,650);
+                            else
+                                set.connect(restriction.getId(),ConstraintSet.TOP,logout.getId(),ConstraintSet.BOTTOM,20);
+
+                            idCabecera=restriction.getId();
+                            set.applyTo(layoutGeneral);
+                            ConstraintSet scrollset = new ConstraintSet();
+                            ScrollView scroll = new ScrollView(InsertRestrictions.this);
+                            Log.d(TAG,Integer.toString(lid));
+                            scroll.setId(lid);
+                            lid++;
+                            ConstraintLayout.LayoutParams lpscroll = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT,500);
+                            layoutGeneral.addView(scroll, lpscroll);
+                            scrollset.clone(layoutGeneral);
+                            scrollset.connect(scroll.getId(),ConstraintSet.TOP,restriction.getId(),ConstraintSet.BOTTOM, 10);
+                            scrollset.applyTo(layoutGeneral);
+
+                            String comunidad = CCAAs.get(i);
+
+                            CollectionReference dbCCAA = db.collection("CCAA").document(comunidad).collection("Restricciones");
+                            dbCCAA.get().addOnCompleteListener(task1 -> {
+                                if (task1.isSuccessful()) {
+                                    List<DocumentSnapshot> documents = task1.getResult().getDocuments();
+                                    Log.d(TAG,documents.get(0).getData().get("0") + "AAAAAA");
+                                    //try {
+                                        DocumentSnapshot totry = documents.get(0);
+                                        ConstraintLayout layout = (ConstraintLayout) findViewById(lid - 1);
+                                        for (int j = 0; j < documents.size(); j++) {
+                                            ConstraintSet setRes = new ConstraintSet();
+                                            TextView restrictions = new TextView(InsertRestrictions.this);
+                                            restrictions.setId(lid);
+                                            lid++;
+                                            ConstraintLayout.LayoutParams lpRes = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
+                                            restrictions.setText("Algo");
+                                            restrictions.setTextSize(17);
+                                            restrictions.setTextColor(Color.parseColor("#BBBBBB"));
+                                            layout.addView(restrictions, lpRes);
+                                            setRes.clone(layout);
+                                            setRes.connect(restrictions.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
+                                            setRes.connect(restrictions.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 50);
+                                            setRes.applyTo(layout);
+                                        }
+                                    /*} catch (Exception err) {
+                                        Log.d(TAG,"LOL");
+                                    }*/
+                                }
+                            });
+                        }
+                    }
+                    if (document.getData().get("Prov") != null) {
+                        List<String> PROVs = (List<String>) document.getData().get("Prov");
+                        boolean first = true;
+                        for (int i = 0; i < PROVs.size(); i++) {
+                            ConstraintSet set = new ConstraintSet();
+                            TextView restriction = new TextView(InsertRestrictions.this);
+                            Log.d(TAG,Integer.toString(lid));
+                            restriction.setId(lid);
+                            lid++;;
+                            ConstraintLayout.LayoutParams lp = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
+                            restriction.setText("Provincia: " + PROVs.get(i));
+                            restriction.setTextSize(17);
+                            restriction.setTextColor(Color.parseColor("#BBBBBB"));
+                            layoutGeneral.addView(restriction, lp);
+                            set.clone(layoutGeneral);
+                            if(idCabecera!=-1)
+                                set.connect(restriction.getId(),ConstraintSet.TOP,idCabecera,ConstraintSet.BOTTOM,650);
+                            else
+                                set.connect(restriction.getId(),ConstraintSet.TOP,logout.getId(),ConstraintSet.BOTTOM,20);
+
+                            idCabecera=restriction.getId();
+                            set.applyTo(layoutGeneral);
+                            ConstraintSet scrollset = new ConstraintSet();
+                            ScrollView scroll = new ScrollView(InsertRestrictions.this);
+                            Log.d(TAG,Integer.toString(lid));
+                            scroll.setId(lid);
+                            lid++;
+                            ConstraintLayout.LayoutParams lpscroll = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT,500);
+                            layoutGeneral.addView(scroll, lpscroll);
+                            scrollset.clone(layoutGeneral);
+                            scrollset.connect(scroll.getId(),ConstraintSet.TOP,restriction.getId(),ConstraintSet.BOTTOM, 10);
+                            scrollset.applyTo(layoutGeneral);
+                        }
+                    }
+                    if (document.getData().get("Mun") != null) {
+                        List<String> MUNs = (List<String>) document.getData().get("Mun");
+                        boolean first = true;
+                        for (int i = 0; i < MUNs.size(); i++) {
+                            ConstraintSet set = new ConstraintSet();
+                            TextView restriction = new TextView(InsertRestrictions.this);
+                            Log.d(TAG,Integer.toString(lid));
+                            restriction.setId(lid);
+                            lid++;;
+                            ConstraintLayout.LayoutParams lp = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
+                            restriction.setText("Municipio: " + MUNs.get(i));
+                            restriction.setTextSize(17);
+                            restriction.setTextColor(Color.parseColor("#BBBBBB"));
+                            layoutGeneral.addView(restriction, lp);
+                            set.clone(layoutGeneral);
+                            if(idCabecera!=-1)
+                                set.connect(restriction.getId(),ConstraintSet.TOP,idCabecera,ConstraintSet.BOTTOM,650);
+                            else
+                                set.connect(restriction.getId(),ConstraintSet.TOP,logout.getId(),ConstraintSet.BOTTOM,20);
+
+                            idCabecera=restriction.getId();
+                            set.applyTo(layoutGeneral);
+                            ConstraintSet scrollset = new ConstraintSet();
+                            ScrollView scroll = new ScrollView(InsertRestrictions.this);
+                            Log.d(TAG,Integer.toString(lid));
+                            scroll.setId(lid);
+                            lid++;
+                            ConstraintLayout.LayoutParams lpscroll = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT,500);
+                            layoutGeneral.addView(scroll, lpscroll);
+                            scrollset.clone(layoutGeneral);
+                            scrollset.connect(scroll.getId(),ConstraintSet.TOP,restriction.getId(),ConstraintSet.BOTTOM, 10);
+                            scrollset.applyTo(layoutGeneral);
+                        }
+                    }
+                }
+            }
+        });
+/*
         DocumentReference dbuser = db.collection("users").document(emailUse);
         dbuser.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
@@ -194,14 +246,13 @@ public class InsertRestrictions extends AppCompatActivity {
                         if (task1.isSuccessful()) {
                             DocumentSnapshot ccaaE = task1.getResult();
                             if (ccaaE.exists()) {
-                                String toqueDeQueda = ccaaE.getData().get("tdq").toString();
-                                if(!toqueDeQueda.equals("-")) {
+                                try{
+                                    String toqueDeQueda = ccaaE.getData().get("tdq").toString();
                                     int barra = toqueDeQueda.indexOf('-');
                                     bbddtdq.setText(toqueDeQueda.substring(0, barra));
                                     bbddtdq2.setText(toqueDeQueda.substring(barra + 1, toqueDeQueda.length()));
                                     tdqCheckBox.setChecked(true);
-                                }
-                                else {
+                                }catch(Exception err) {
                                     tdq.setTextColor(Color.parseColor("#222222"));
                                     slash.setTextColor(Color.parseColor("#222222"));
                                     bbddtdq.setTextColor(Color.parseColor("#222222"));
@@ -210,6 +261,7 @@ public class InsertRestrictions extends AppCompatActivity {
                                     bbddtdq2.setEnabled(false);
                                     tdqCheckBox.setChecked(false);
                                 }
+
 
                                 bbddcp.setChecked((Boolean) ccaaE.getData().get("cp"));
                                 if(!bbddcp.isChecked())
@@ -525,7 +577,7 @@ public class InsertRestrictions extends AppCompatActivity {
                     }
                 });
             }
-        });
+        });*/
 
         logout.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -539,7 +591,7 @@ public class InsertRestrictions extends AppCompatActivity {
     }
 
     private void setOnCheckListeners(){
-
+/*
         bbddcp.setOnClickListener(v -> {
             if(bbddcp.isChecked())
                 cp.setTextColor(Color.parseColor("#BBBBBB"));
@@ -848,17 +900,6 @@ public class InsertRestrictions extends AppCompatActivity {
                 mbbddhmon.setText("");
             }
         });
-
+*/
     }
-
-    /*private void setup(Location location){
-        try {
-            Geocoder geocoder = new Geocoder(InsertRestrictions.this);
-            List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-
-            mun = addresses.get(0).getLocality();
-        }catch(Exception e){
-            Log.d(TAG,"Error: " + e);
-        }
-    }*/
 }
