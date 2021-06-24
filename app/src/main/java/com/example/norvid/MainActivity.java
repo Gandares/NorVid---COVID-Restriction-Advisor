@@ -340,7 +340,7 @@ public class MainActivity extends AppCompatActivity {
                     int idlast = -1;
                     for (int i = 0; i < documents.size(); i++) {
                         boolean first = true;
-                        long datalen = (long) documents.get(i).getData().get("len");
+                        long datalen = (long) documents.get(i).getData().size();
                         for (int j = 0; j < datalen; j++) {
                             ConstraintSet set = new ConstraintSet();
                             TextView restriction = new TextView(MainActivity.this);
@@ -391,7 +391,7 @@ public class MainActivity extends AppCompatActivity {
                     int idlast = -1;
                     for (int i = 0; i < documents.size(); i++) {
                         boolean first = true;
-                        long datalen = (long) documents.get(i).getData().get("len");
+                        long datalen = (long) documents.get(i).getData().size();
                         for (int j = 0; j < datalen; j++) {
                             ConstraintSet set = new ConstraintSet();
                             TextView restriction = new TextView(MainActivity.this);
@@ -442,7 +442,7 @@ public class MainActivity extends AppCompatActivity {
                     int idlast = -1;
                     for (int i = 0; i < documents.size(); i++) {
                         boolean first = true;
-                        long datalen = (long) documents.get(i).getData().get("len");
+                        long datalen = (long) documents.get(i).getData().size();
                         for (int j = 0; j < datalen; j++) {
                             ConstraintSet set = new ConstraintSet();
                             TextView restriction = new TextView(MainActivity.this);
