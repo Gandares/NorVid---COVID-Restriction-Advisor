@@ -47,8 +47,11 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.WriteBatch;
+import com.google.firestore.v1.WriteResult;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,35 +63,14 @@ public class InsertRestrictions extends AppCompatActivity {
     public static final int FAST_UPDATE_INTERVAL = 5;
     int lid = 2000;
     int contador = 0;
+    int contadorAsincrono = 0;
+    boolean reestructurar = true;
 
-    ArrayList<ArrayList<ArrayList<Integer>>> Guardar = new ArrayList<ArrayList<ArrayList<Integer>>>();
-    ArrayList<String> Lugares = new ArrayList<>();
+    ArrayList<ConstraintLayout> cls = new ArrayList<>();
+    ArrayList<ArrayList<ArrayList<Integer>>> Guardar = new ArrayList<>();
+    ArrayList<ArrayList<String>> Lugares = new ArrayList<>();
 
-    TextView cp, slash, tdq, r, hmh, i, e, hmon;
-    EditText bbddtdq, bbddtdq2, bbddr, bbddhmh, bbddi, bbdde, bbddhmon;
-
-    TextView pcp, pslash, ptdq, pr, phmh, pi, pe, phmon;
-    EditText pbbddtdq, pbbddtdq2, pbbddr, pbbddhmh, pbbddi, pbbdde, pbbddhmon;
-
-    TextView mcp, mslash, mtdq, mr, mhmh, mi, me, mhmon;
-    EditText mbbddtdq, mbbddtdq2, mbbddr, mbbddhmh, mbbddi, mbbdde, mbbddhmon;
-
-    TextView ccaatext, provtext, muntext;
-
-    CheckBox bbddcp, tdqCheckBox, rCheckBox, hmhCheckBox, iCheckBox, eCheckBox, hmonCheckBox;
-
-    CheckBox pbbddcp, ptdqCheckBox, prCheckBox, phmhCheckBox, piCheckBox, peCheckBox, phmonCheckBox;
-
-    CheckBox mbbddcp, mtdqCheckBox, mrCheckBox, mhmhCheckBox, miCheckBox, meCheckBox, mhmonCheckBox;
-
-    String mun, munUser, provUser, ccaaUser;
-    Button button, logout;
-
-    FusedLocationProviderClient fusedLocationProviderClient;
-
-    LocationRequest locationRequest;
-
-    LocationCallback locationCallback;
+    Button saveButton, logout;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -98,11 +80,11 @@ public class InsertRestrictions extends AppCompatActivity {
 
         String emailUse = getIntent().getStringExtra("email");
 
-        provUser = "Ninguno asignado";
-        ccaaUser = "Ninguno asignado";
-
-        button = findViewById(R.id.savebutton);
+        saveButton = findViewById(R.id.savebutton);
         logout = findViewById(R.id.logOutButton);
+
+        saveButton.setEnabled(false);
+        logout.setEnabled(false);
 
         ConstraintLayout layoutGeneral = (ConstraintLayout) logout.getParent();
 
@@ -113,9 +95,9 @@ public class InsertRestrictions extends AppCompatActivity {
                 if (document.exists()) {
                     if (document.getData().get("CCAA") != null) {
                         List<String> CCAAs = (List<String>) document.getData().get("CCAA");
-                        boolean first = true;
+                        ArrayList<String> Lugar = new ArrayList<>();
                         for (int i = 0; i < CCAAs.size(); i++) {
-                            Lugares.add(CCAAs.get(i));
+                            Lugar.add(CCAAs.get(i));
                             ConstraintSet set = new ConstraintSet();
                             TextView restriction = new TextView(InsertRestrictions.this);
                             restriction.setId(lid);
@@ -127,33 +109,35 @@ public class InsertRestrictions extends AppCompatActivity {
                             restriction.setTextColor(Color.parseColor("#BBBBBB"));
                             layoutGeneral.addView(restriction, lp);
                             set.clone(layoutGeneral);
-                            if(lid!=2001)
-                                set.connect(restriction.getId(),ConstraintSet.TOP,lid-2,ConstraintSet.BOTTOM,20);
+                            if (lid != 2001)
+                                set.connect(restriction.getId(), ConstraintSet.TOP, lid - 2, ConstraintSet.BOTTOM, 20);
                             else
-                                set.connect(restriction.getId(),ConstraintSet.TOP,logout.getId(),ConstraintSet.BOTTOM,20);
+                                set.connect(restriction.getId(), ConstraintSet.TOP, logout.getId(), ConstraintSet.BOTTOM, 20);
 
                             set.applyTo(layoutGeneral);
 
                             ScrollView scrollView = new ScrollView(InsertRestrictions.this);
                             scrollView.setId(lid);
                             lid++;
-                            ConstraintLayout.LayoutParams sclp= new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, 500);
+                            ConstraintLayout.LayoutParams sclp = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, 500);
                             layoutGeneral.addView(scrollView, sclp);
                             set.clone(layoutGeneral);
-                            set.connect(scrollView.getId(),ConstraintSet.TOP,restriction.getId(),ConstraintSet.BOTTOM,20);
+                            set.connect(scrollView.getId(), ConstraintSet.TOP, restriction.getId(), ConstraintSet.BOTTOM, 20);
                             set.applyTo(layoutGeneral);
 
                             ConstraintLayout cl = new ConstraintLayout(InsertRestrictions.this);
                             cl.setId(lid);
                             lid++;
-                            ConstraintLayout.LayoutParams cllp= new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, 500);
+                            ConstraintLayout.LayoutParams cllp = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, 500);
                             layoutGeneral.addView(cl, cllp);
                             set.clone(layoutGeneral);
-                            set.connect(cl.getId(),ConstraintSet.TOP,scrollView.getId(),ConstraintSet.TOP);
-                            set.connect(cl.getId(),ConstraintSet.BOTTOM,scrollView.getId(),ConstraintSet.BOTTOM);
-                            set.connect(cl.getId(),ConstraintSet.END,scrollView.getId(),ConstraintSet.END);
-                            set.connect(cl.getId(),ConstraintSet.START,scrollView.getId(),ConstraintSet.START);
+                            set.connect(cl.getId(), ConstraintSet.TOP, scrollView.getId(), ConstraintSet.TOP);
+                            set.connect(cl.getId(), ConstraintSet.BOTTOM, scrollView.getId(), ConstraintSet.BOTTOM);
+                            set.connect(cl.getId(), ConstraintSet.END, scrollView.getId(), ConstraintSet.END);
+                            set.connect(cl.getId(), ConstraintSet.START, scrollView.getId(), ConstraintSet.START);
                             set.applyTo(layoutGeneral);
+
+                            cls.add(cl);
 
                             ImageButton deleteButton = new ImageButton(InsertRestrictions.this);
                             ConstraintLayout.LayoutParams lpButton = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
@@ -162,12 +146,27 @@ public class InsertRestrictions extends AppCompatActivity {
                             deleteButton.setImageResource(R.drawable.delete);
                             layoutGeneral.addView(deleteButton, lpButton);
                             set.clone(layoutGeneral);
-                            set.connect(deleteButton.getId(),ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END);
-                            set.connect(deleteButton.getId(),ConstraintSet.TOP, restriction.getId(), ConstraintSet.TOP);
-                            set.connect(deleteButton.getId(),ConstraintSet.BOTTOM, restriction.getId(), ConstraintSet.BOTTOM);
+                            set.connect(deleteButton.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END);
+                            set.connect(deleteButton.getId(), ConstraintSet.TOP, restriction.getId(), ConstraintSet.TOP);
+                            set.connect(deleteButton.getId(), ConstraintSet.BOTTOM, restriction.getId(), ConstraintSet.BOTTOM);
                             set.applyTo(layoutGeneral);
                             int fila = contador;
                             deleteClick(deleteButton, cl, fila);
+
+                            Button newRes = new Button(InsertRestrictions.this);
+                            ConstraintLayout.LayoutParams lpNew = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
+                            newRes.setId(lid);
+                            lid++;
+                            newRes.setText("Seleccionar otra restricción para " + CCAAs.get(i));
+                            newRes.setTextSize(10);
+                            layoutGeneral.addView(newRes, lpNew);
+                            set.clone(layoutGeneral);
+                            set.connect(newRes.getId(), ConstraintSet.TOP, cl.getId(), ConstraintSet.BOTTOM,10);
+                            set.connect(newRes.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 20);
+                            set.connect(newRes.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, 20);
+                            set.applyTo(layoutGeneral);
+                            int copiaContador = contador;
+                            restriccionesClick(newRes, cl, copiaContador, emailUse);
 
                             String comunidad = CCAAs.get(i);
 
@@ -181,7 +180,7 @@ public class InsertRestrictions extends AppCompatActivity {
                                     ConstraintSet setIn = new ConstraintSet();
                                     try {
                                         DocumentSnapshot totry = documents.get(0);
-                                        for(int finalI = 0; finalI < documents.size(); finalI++) {
+                                        for (int finalI = 0; finalI < documents.size(); finalI++) {
                                             boolean firstIn = true;
 
                                             ArrayList<Integer> idCadaPalabra = new ArrayList<Integer>();
@@ -199,8 +198,8 @@ public class InsertRestrictions extends AppCompatActivity {
                                                     cl.addView(restrictions, lpRes);
                                                     setIn.clone(cl);
 
-                                                    if(idlast == -1) {
-                                                        setIn.connect(restrictions.getId(),ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
+                                                    if (idlast == -1) {
+                                                        setIn.connect(restrictions.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
                                                         setIn.connect(restrictions.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 50);
                                                         firstIn = false;
                                                     } else {
@@ -226,8 +225,8 @@ public class InsertRestrictions extends AppCompatActivity {
                                                     cl.addView(restrictions, lpRes);
                                                     setIn.clone(cl);
 
-                                                    if(idlast == -1) {
-                                                        setIn.connect(restrictions.getId(),ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
+                                                    if (idlast == -1) {
+                                                        setIn.connect(restrictions.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
                                                         setIn.connect(restrictions.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 50);
                                                         firstIn = false;
                                                     } else {
@@ -251,400 +250,352 @@ public class InsertRestrictions extends AppCompatActivity {
                                             idCadaRestriccion.add(idCadaPalabra);
                                         }
 
-                                        Button newRes = new Button(InsertRestrictions.this);
-                                        ConstraintLayout.LayoutParams lpNew = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
-                                        newRes.setId(lid);
-                                        lid++;
-                                        newRes.setText("Seleccionar otra restricción");
-                                        cl.addView(newRes, lpNew);
-                                        set.clone(cl);
-                                        set.connect(newRes.getId(),ConstraintSet.TOP, idlast, ConstraintSet.BOTTOM);
-                                        set.connect(newRes.getId(),ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 40);
-                                        set.applyTo(cl);
-                                        int copiaContador = contador;
-                                        restriccionesClick(newRes, copiaContador);
-
-
-                                    } catch (Exception err) {
-                                        Button newRes = new Button(InsertRestrictions.this);
-                                        ConstraintLayout.LayoutParams lpNew = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
-                                        newRes.setId(lid);
-                                        lid++;
-                                        newRes.setText("Seleccionar otra restricción");
-                                        cl.addView(newRes, lpNew);
-                                        set.clone(cl);
-                                        set.connect(newRes.getId(),ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
-                                        set.connect(newRes.getId(),ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 40);
-                                        set.applyTo(cl);
-                                        int copiaContad = contador;
-                                        restriccionesClick(newRes, copiaContad);
-                                    }
+                                    } catch (Exception err) { }
                                 }
                                 Guardar.add(idCadaRestriccion);
+                                contadorAsincrono++;
                             });
                             contador++;
                         }
+                        Lugares.add(Lugar);
                     }
-                    try {
-                        Thread.sleep(50);
-                        if (document.getData().get("Prov") != null) {
-                            List<String> PROVs = (List<String>) document.getData().get("Prov");
-                            for (int i2 = 0; i2 < PROVs.size(); i2++) {
-                                Lugares.add(PROVs.get(i2));
-                                ConstraintSet set = new ConstraintSet();
-                                TextView restriction = new TextView(InsertRestrictions.this);
-                                restriction.setId(lid);
-                                lid++;
-                                ConstraintLayout.LayoutParams lp2 = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
-                                restriction.setText("Provincia: " + PROVs.get(i2));
-                                restriction.setTextSize(17);
-                                restriction.setTextColor(Color.parseColor("#BBBBBB"));
-                                layoutGeneral.addView(restriction, lp2);
-                                set.clone(layoutGeneral);
-                                if (lid != 2001)
-                                    set.connect(restriction.getId(), ConstraintSet.TOP, lid - 3, ConstraintSet.BOTTOM, 20);
-                                else
-                                    set.connect(restriction.getId(), ConstraintSet.TOP, logout.getId(), ConstraintSet.BOTTOM, 20);
+                    if (document.getData().get("Prov") != null) {
+                        List<String> PROVs = (List<String>) document.getData().get("Prov");
+                        ArrayList<String> Lugar = new ArrayList<>();
+                        for (int i2 = 0; i2 < PROVs.size(); i2++) {
+                            Lugar.add(PROVs.get(i2));
+                            ConstraintSet set = new ConstraintSet();
+                            TextView restriction = new TextView(InsertRestrictions.this);
+                            restriction.setId(lid);
+                            lid++;
+                            ConstraintLayout.LayoutParams lp2 = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
+                            restriction.setText("Provincia: " + PROVs.get(i2));
+                            restriction.setTextSize(17);
+                            restriction.setTextColor(Color.parseColor("#BBBBBB"));
+                            layoutGeneral.addView(restriction, lp2);
+                            set.clone(layoutGeneral);
+                            if (lid != 2001)
+                                set.connect(restriction.getId(), ConstraintSet.TOP, lid - 2, ConstraintSet.BOTTOM, 20);
+                            else
+                                set.connect(restriction.getId(), ConstraintSet.TOP, logout.getId(), ConstraintSet.BOTTOM, 20);
 
-                                set.applyTo(layoutGeneral);
+                            set.applyTo(layoutGeneral);
 
-                                ScrollView scrollView = new ScrollView(InsertRestrictions.this);
-                                scrollView.setId(lid);
-                                lid++;
-                                ConstraintLayout.LayoutParams sclp= new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, 500);
-                                layoutGeneral.addView(scrollView, sclp);
-                                set.clone(layoutGeneral);
-                                set.connect(scrollView.getId(),ConstraintSet.TOP,restriction.getId(),ConstraintSet.BOTTOM,20);
-                                set.applyTo(layoutGeneral);
+                            ScrollView scrollView = new ScrollView(InsertRestrictions.this);
+                            scrollView.setId(lid);
+                            lid++;
+                            ConstraintLayout.LayoutParams sclp = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, 500);
+                            layoutGeneral.addView(scrollView, sclp);
+                            set.clone(layoutGeneral);
+                            set.connect(scrollView.getId(), ConstraintSet.TOP, restriction.getId(), ConstraintSet.BOTTOM, 20);
+                            set.applyTo(layoutGeneral);
 
-                                ConstraintLayout cl = new ConstraintLayout(InsertRestrictions.this);
-                                cl.setId(lid);
-                                lid++;
-                                ConstraintLayout.LayoutParams cllp= new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, 500);
-                                layoutGeneral.addView(cl, cllp);
-                                set.clone(layoutGeneral);
-                                set.connect(cl.getId(),ConstraintSet.TOP,scrollView.getId(),ConstraintSet.TOP);
-                                set.connect(cl.getId(),ConstraintSet.BOTTOM,scrollView.getId(),ConstraintSet.BOTTOM);
-                                set.connect(cl.getId(),ConstraintSet.END,scrollView.getId(),ConstraintSet.END);
-                                set.connect(cl.getId(),ConstraintSet.START,scrollView.getId(),ConstraintSet.START);
-                                set.applyTo(layoutGeneral);
+                            ConstraintLayout cl = new ConstraintLayout(InsertRestrictions.this);
+                            cl.setId(lid);
+                            lid++;
+                            ConstraintLayout.LayoutParams cllp = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, 500);
+                            layoutGeneral.addView(cl, cllp);
+                            set.clone(layoutGeneral);
+                            set.connect(cl.getId(), ConstraintSet.TOP, scrollView.getId(), ConstraintSet.TOP);
+                            set.connect(cl.getId(), ConstraintSet.BOTTOM, scrollView.getId(), ConstraintSet.BOTTOM);
+                            set.connect(cl.getId(), ConstraintSet.END, scrollView.getId(), ConstraintSet.END);
+                            set.connect(cl.getId(), ConstraintSet.START, scrollView.getId(), ConstraintSet.START);
+                            set.applyTo(layoutGeneral);
 
-                                ImageButton deleteButton = new ImageButton(InsertRestrictions.this);
-                                ConstraintLayout.LayoutParams lpButton = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
-                                deleteButton.setId(lid);
-                                lid++;
-                                deleteButton.setImageResource(R.drawable.delete);
-                                layoutGeneral.addView(deleteButton, lpButton);
-                                set.clone(layoutGeneral);
-                                set.connect(deleteButton.getId(),ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END);
-                                set.connect(deleteButton.getId(),ConstraintSet.TOP, restriction.getId(), ConstraintSet.TOP);
-                                set.connect(deleteButton.getId(),ConstraintSet.BOTTOM, restriction.getId(), ConstraintSet.BOTTOM);
-                                set.applyTo(layoutGeneral);
+                            cls.add(cl);
 
-                                int fila = contador;
-                                deleteClick(deleteButton, cl,fila);
+                            ImageButton deleteButton = new ImageButton(InsertRestrictions.this);
+                            ConstraintLayout.LayoutParams lpButton = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
+                            deleteButton.setId(lid);
+                            lid++;
+                            deleteButton.setImageResource(R.drawable.delete);
+                            layoutGeneral.addView(deleteButton, lpButton);
+                            set.clone(layoutGeneral);
+                            set.connect(deleteButton.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END);
+                            set.connect(deleteButton.getId(), ConstraintSet.TOP, restriction.getId(), ConstraintSet.TOP);
+                            set.connect(deleteButton.getId(), ConstraintSet.BOTTOM, restriction.getId(), ConstraintSet.BOTTOM);
+                            set.applyTo(layoutGeneral);
 
-                                String prov = PROVs.get(i2);
+                            int fila = contador;
+                            deleteClick(deleteButton, cl, fila);
 
-                                ArrayList<ArrayList<Integer>> idCadaRestriccion = new ArrayList<ArrayList<Integer>>();
+                            Button newRes = new Button(InsertRestrictions.this);
+                            ConstraintLayout.LayoutParams lpNew = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
+                            newRes.setId(lid);
+                            lid++;
+                            newRes.setText("Seleccionar otra restricción para " + PROVs.get(i2));
+                            newRes.setTextSize(10);
+                            layoutGeneral.addView(newRes, lpNew);
+                            set.clone(layoutGeneral);
+                            set.connect(newRes.getId(), ConstraintSet.TOP, cl.getId(), ConstraintSet.BOTTOM);
+                            set.connect(newRes.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 20);
+                            set.connect(newRes.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, 20);
+                            set.applyTo(layoutGeneral);
+                            int copiaContador = contador;
+                            restriccionesClick(newRes, cl, copiaContador, emailUse);
 
-                                CollectionReference dbPROV = db.collection("Provincias").document(prov).collection("Restricciones");
-                                dbPROV.get().addOnCompleteListener(task1 -> {
-                                    if (task1.isSuccessful()) {
-                                        List<DocumentSnapshot> documents = task1.getResult().getDocuments();
-                                        int idlast = -1;
-                                        ConstraintSet setIn = new ConstraintSet();
-                                        try {
-                                            DocumentSnapshot totry = documents.get(0);
-                                            for(int finalI = 0; finalI < documents.size(); finalI++) {
-                                                boolean firstIn = true;
+                            String prov = PROVs.get(i2);
 
-                                                ArrayList<Integer> idCadaPalabra = new ArrayList<Integer>();
-                                                for (int j = 0; j < documents.get(finalI).getData().size(); j++) {
+                            ArrayList<ArrayList<Integer>> idCadaRestriccion = new ArrayList<ArrayList<Integer>>();
 
-                                                    if ((String) documents.get(finalI).getData().get(Integer.toString(j)) != null) {
-                                                        TextView restrictions = new TextView(InsertRestrictions.this);
-                                                        restrictions.setId(lid);
+                            CollectionReference dbPROV = db.collection("Provincias").document(prov).collection("Restricciones");
+                            dbPROV.get().addOnCompleteListener(task1 -> {
+                                if (task1.isSuccessful()) {
+                                    List<DocumentSnapshot> documents = task1.getResult().getDocuments();
+                                    int idlast = -1;
+                                    ConstraintSet setIn = new ConstraintSet();
+                                    try {
+                                        DocumentSnapshot totry = documents.get(0);
+                                        for (int finalI = 0; finalI < documents.size(); finalI++) {
+                                            boolean firstIn = true;
 
-                                                        ConstraintLayout.LayoutParams lpRes = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
+                                            ArrayList<Integer> idCadaPalabra = new ArrayList<Integer>();
+                                            for (int j = 0; j < documents.get(finalI).getData().size(); j++) {
 
-                                                        restrictions.setText((String) documents.get(finalI).getData().get(Integer.toString(j)));
-                                                        restrictions.setTextSize(17);
-                                                        restrictions.setTextColor(Color.parseColor("#BBBBBB"));
-                                                        cl.addView(restrictions, lpRes);
-                                                        setIn.clone(cl);
+                                                if ((String) documents.get(finalI).getData().get(Integer.toString(j)) != null) {
+                                                    TextView restrictions = new TextView(InsertRestrictions.this);
+                                                    restrictions.setId(lid);
 
-                                                        if(idlast == -1) {
-                                                            setIn.connect(restrictions.getId(),ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
-                                                            setIn.connect(restrictions.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 50);
-                                                            firstIn = false;
-                                                        } else {
-                                                            if (firstIn) {
-                                                                setIn.connect(restrictions.getId(), ConstraintSet.TOP, idlast, ConstraintSet.BOTTOM);
-                                                                setIn.connect(restrictions.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 50);
-                                                                firstIn = false;
-                                                            } else {
-                                                                setIn.connect(restrictions.getId(), ConstraintSet.START, idlast, ConstraintSet.END);
-                                                                setIn.connect(restrictions.getId(), ConstraintSet.TOP, idlast, ConstraintSet.TOP);
-                                                                setIn.connect(restrictions.getId(), ConstraintSet.BOTTOM, idlast, ConstraintSet.BOTTOM);
-                                                            }
-                                                        }
+                                                    ConstraintLayout.LayoutParams lpRes = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
+
+                                                    restrictions.setText((String) documents.get(finalI).getData().get(Integer.toString(j)));
+                                                    restrictions.setTextSize(17);
+                                                    restrictions.setTextColor(Color.parseColor("#BBBBBB"));
+                                                    cl.addView(restrictions, lpRes);
+                                                    setIn.clone(cl);
+
+                                                    if (idlast == -1) {
+                                                        setIn.connect(restrictions.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
+                                                        setIn.connect(restrictions.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 50);
+                                                        firstIn = false;
                                                     } else {
-                                                        EditText restrictions = new EditText(InsertRestrictions.this);
-                                                        restrictions.setId(lid);
-
-                                                        ConstraintLayout.LayoutParams lpRes = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
-
-                                                        restrictions.setText((String) documents.get(finalI).getData().get("data" + j));
-                                                        restrictions.setTextSize(17);
-                                                        restrictions.setTextColor(Color.parseColor("#BBBBBB"));
-                                                        cl.addView(restrictions, lpRes);
-                                                        setIn.clone(cl);
-
-                                                        if(idlast == -1) {
-                                                            setIn.connect(restrictions.getId(),ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
+                                                        if (firstIn) {
+                                                            setIn.connect(restrictions.getId(), ConstraintSet.TOP, idlast, ConstraintSet.BOTTOM);
                                                             setIn.connect(restrictions.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 50);
                                                             firstIn = false;
                                                         } else {
-                                                            if (firstIn) {
-                                                                setIn.connect(restrictions.getId(), ConstraintSet.TOP, idlast, ConstraintSet.BOTTOM);
-                                                                setIn.connect(restrictions.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 50);
-                                                                firstIn = false;
-                                                            } else {
-                                                                setIn.connect(restrictions.getId(), ConstraintSet.START, idlast, ConstraintSet.END);
-                                                                setIn.connect(restrictions.getId(), ConstraintSet.TOP, idlast, ConstraintSet.TOP);
-                                                                setIn.connect(restrictions.getId(), ConstraintSet.BOTTOM, idlast, ConstraintSet.BOTTOM);
-                                                            }
+                                                            setIn.connect(restrictions.getId(), ConstraintSet.START, idlast, ConstraintSet.END);
+                                                            setIn.connect(restrictions.getId(), ConstraintSet.TOP, idlast, ConstraintSet.TOP);
+                                                            setIn.connect(restrictions.getId(), ConstraintSet.BOTTOM, idlast, ConstraintSet.BOTTOM);
                                                         }
                                                     }
-                                                    setIn.applyTo(cl);
+                                                } else {
+                                                    EditText restrictions = new EditText(InsertRestrictions.this);
+                                                    restrictions.setId(lid);
 
-                                                    idlast = lid;
-                                                    lid++;
-                                                    idCadaPalabra.add(idlast);
-                                                }
-                                                idCadaRestriccion.add(idCadaPalabra);
-                                            }
+                                                    ConstraintLayout.LayoutParams lpRes = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
 
-                                            Button newRes = new Button(InsertRestrictions.this);
-                                            ConstraintLayout.LayoutParams lpNew = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
-                                            newRes.setId(lid);
-                                            lid++;
-                                            newRes.setText("Seleccionar otra restricción");
-                                            cl.addView(newRes, lpNew);
-                                            set.clone(cl);
-                                            set.connect(newRes.getId(),ConstraintSet.TOP, idlast, ConstraintSet.BOTTOM);
-                                            set.connect(newRes.getId(),ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 40);
-                                            set.applyTo(cl);
-                                            int copiaContador = contador;
-                                            restriccionesClick(newRes, copiaContador);
+                                                    restrictions.setText((String) documents.get(finalI).getData().get("data" + j));
+                                                    restrictions.setTextSize(17);
+                                                    restrictions.setTextColor(Color.parseColor("#BBBBBB"));
+                                                    cl.addView(restrictions, lpRes);
+                                                    setIn.clone(cl);
 
-
-                                        } catch (Exception err) {
-                                            Button newRes = new Button(InsertRestrictions.this);
-                                            ConstraintLayout.LayoutParams lpNew = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
-                                            newRes.setId(lid);
-                                            lid++;
-                                            newRes.setText("Seleccionar otra restricción");
-                                            cl.addView(newRes, lpNew);
-                                            set.clone(cl);
-                                            set.connect(newRes.getId(),ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
-                                            set.connect(newRes.getId(),ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 40);
-                                            set.applyTo(cl);
-                                            int copiaContad = contador;
-                                            restriccionesClick(newRes, copiaContad);
-                                        }
-                                    }
-                                    Guardar.add(idCadaRestriccion);
-                                });
-                                contador++;
-                            }
-                        }
-                    } catch (InterruptedException interruptedException) {
-                        interruptedException.printStackTrace();
-                    }
-                    try {
-                        Thread.sleep(50);
-                        if (document.getData().get("Mun") != null) {
-                            List<String> MUNs = (List<String>) document.getData().get("Mun");
-                            for (int i3 = 0; i3 < MUNs.size(); i3++) {
-                                Lugares.add(MUNs.get(i3));
-                                ConstraintSet set = new ConstraintSet();
-                                TextView restriction = new TextView(InsertRestrictions.this);
-                                restriction.setId(lid);
-                                lid++;
-                                ConstraintLayout.LayoutParams lp3 = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
-                                restriction.setText("Municipio: " + MUNs.get(i3));
-                                restriction.setTextSize(17);
-                                restriction.setTextColor(Color.parseColor("#BBBBBB"));
-                                layoutGeneral.addView(restriction, lp3);
-                                set.clone(layoutGeneral);
-                                if (lid != -1)
-                                    set.connect(restriction.getId(), ConstraintSet.TOP, lid - 3, ConstraintSet.BOTTOM, 20);
-                                else
-                                    set.connect(restriction.getId(), ConstraintSet.TOP, logout.getId(), ConstraintSet.BOTTOM, 20);
-
-                                set.applyTo(layoutGeneral);
-
-                                ScrollView scrollView = new ScrollView(InsertRestrictions.this);
-                                scrollView.setId(lid);
-                                lid++;
-                                ConstraintLayout.LayoutParams sclp= new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, 500);
-                                layoutGeneral.addView(scrollView, sclp);
-                                set.clone(layoutGeneral);
-                                set.connect(scrollView.getId(),ConstraintSet.TOP,restriction.getId(),ConstraintSet.BOTTOM,20);
-                                set.applyTo(layoutGeneral);
-
-                                ConstraintLayout cl = new ConstraintLayout(InsertRestrictions.this);
-                                cl.setId(lid);
-                                lid++;
-                                ConstraintLayout.LayoutParams cllp= new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, 500);
-                                layoutGeneral.addView(cl, cllp);
-                                set.clone(layoutGeneral);
-                                set.connect(cl.getId(),ConstraintSet.TOP,scrollView.getId(),ConstraintSet.TOP);
-                                set.connect(cl.getId(),ConstraintSet.BOTTOM,scrollView.getId(),ConstraintSet.BOTTOM);
-                                set.connect(cl.getId(),ConstraintSet.END,scrollView.getId(),ConstraintSet.END);
-                                set.connect(cl.getId(),ConstraintSet.START,scrollView.getId(),ConstraintSet.START);
-                                set.applyTo(layoutGeneral);
-
-                                ImageButton deleteButton = new ImageButton(InsertRestrictions.this);
-                                ConstraintLayout.LayoutParams lpButton = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
-                                deleteButton.setId(lid);
-                                lid++;
-                                deleteButton.setImageResource(R.drawable.delete);
-                                layoutGeneral.addView(deleteButton, lpButton);
-                                set.clone(layoutGeneral);
-                                set.connect(deleteButton.getId(),ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END);
-                                set.connect(deleteButton.getId(),ConstraintSet.TOP, restriction.getId(), ConstraintSet.TOP);
-                                set.connect(deleteButton.getId(),ConstraintSet.BOTTOM, restriction.getId(), ConstraintSet.BOTTOM);
-                                set.applyTo(layoutGeneral);
-
-                                int fila = contador;
-                                deleteClick(deleteButton, cl, fila);
-
-                                String mun = MUNs.get(i3);
-
-                                ArrayList<ArrayList<Integer>> idCadaRestriccion = new ArrayList<ArrayList<Integer>>();
-
-                                CollectionReference dbMUN = db.collection("Municipios").document(mun).collection("Restricciones");
-                                dbMUN.get().addOnCompleteListener(task1 -> {
-                                    if (task1.isSuccessful()) {
-                                        List<DocumentSnapshot> documents = task1.getResult().getDocuments();
-                                        int idlast = -1;
-                                        ConstraintSet setIn = new ConstraintSet();
-                                        try {
-                                            DocumentSnapshot totry = documents.get(0);
-                                            for(int finalI = 0; finalI < documents.size(); finalI++) {
-                                                boolean firstIn = true;
-
-                                                ArrayList<Integer> idCadaPalabra = new ArrayList<Integer>();
-                                                for (int j = 0; j < documents.get(finalI).getData().size(); j++) {
-
-                                                    if ((String) documents.get(finalI).getData().get(Integer.toString(j)) != null) {
-                                                        TextView restrictions = new TextView(InsertRestrictions.this);
-                                                        restrictions.setId(lid);
-
-                                                        ConstraintLayout.LayoutParams lpRes = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
-
-                                                        restrictions.setText((String) documents.get(finalI).getData().get(Integer.toString(j)));
-                                                        restrictions.setTextSize(17);
-                                                        restrictions.setTextColor(Color.parseColor("#BBBBBB"));
-                                                        cl.addView(restrictions, lpRes);
-                                                        setIn.clone(cl);
-
-                                                        if(idlast == -1) {
-                                                            setIn.connect(restrictions.getId(),ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
-                                                            setIn.connect(restrictions.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 50);
-                                                            firstIn = false;
-                                                        } else {
-                                                            if (firstIn) {
-                                                                setIn.connect(restrictions.getId(), ConstraintSet.TOP, idlast, ConstraintSet.BOTTOM);
-                                                                setIn.connect(restrictions.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 50);
-                                                                firstIn = false;
-                                                            } else {
-                                                                setIn.connect(restrictions.getId(), ConstraintSet.START, idlast, ConstraintSet.END);
-                                                                setIn.connect(restrictions.getId(), ConstraintSet.TOP, idlast, ConstraintSet.TOP);
-                                                                setIn.connect(restrictions.getId(), ConstraintSet.BOTTOM, idlast, ConstraintSet.BOTTOM);
-                                                            }
-                                                        }
+                                                    if (idlast == -1) {
+                                                        setIn.connect(restrictions.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
+                                                        setIn.connect(restrictions.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 50);
+                                                        firstIn = false;
                                                     } else {
-                                                        EditText restrictions = new EditText(InsertRestrictions.this);
-                                                        restrictions.setId(lid);
-
-                                                        ConstraintLayout.LayoutParams lpRes = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
-
-                                                        restrictions.setText((String) documents.get(finalI).getData().get("data" + j));
-                                                        restrictions.setTextSize(17);
-                                                        restrictions.setTextColor(Color.parseColor("#BBBBBB"));
-                                                        cl.addView(restrictions, lpRes);
-                                                        setIn.clone(cl);
-
-                                                        if(idlast == -1) {
-                                                            setIn.connect(restrictions.getId(),ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
+                                                        if (firstIn) {
+                                                            setIn.connect(restrictions.getId(), ConstraintSet.TOP, idlast, ConstraintSet.BOTTOM);
                                                             setIn.connect(restrictions.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 50);
                                                             firstIn = false;
                                                         } else {
-                                                            if (firstIn) {
-                                                                setIn.connect(restrictions.getId(), ConstraintSet.TOP, idlast, ConstraintSet.BOTTOM);
-                                                                setIn.connect(restrictions.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 50);
-                                                                firstIn = false;
-                                                            } else {
-                                                                setIn.connect(restrictions.getId(), ConstraintSet.START, idlast, ConstraintSet.END);
-                                                                setIn.connect(restrictions.getId(), ConstraintSet.TOP, idlast, ConstraintSet.TOP);
-                                                                setIn.connect(restrictions.getId(), ConstraintSet.BOTTOM, idlast, ConstraintSet.BOTTOM);
-                                                            }
+                                                            setIn.connect(restrictions.getId(), ConstraintSet.START, idlast, ConstraintSet.END);
+                                                            setIn.connect(restrictions.getId(), ConstraintSet.TOP, idlast, ConstraintSet.TOP);
+                                                            setIn.connect(restrictions.getId(), ConstraintSet.BOTTOM, idlast, ConstraintSet.BOTTOM);
                                                         }
                                                     }
-                                                    setIn.applyTo(cl);
-
-                                                    idlast = lid;
-                                                    lid++;
-                                                    idCadaPalabra.add(idlast);
                                                 }
-                                                idCadaRestriccion.add(idCadaPalabra);
+                                                setIn.applyTo(cl);
+
+                                                idlast = lid;
+                                                lid++;
+                                                idCadaPalabra.add(idlast);
                                             }
-
-                                            Button newRes = new Button(InsertRestrictions.this);
-                                            ConstraintLayout.LayoutParams lpNew = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
-                                            newRes.setId(lid);
-                                            lid++;
-                                            newRes.setText("Seleccionar otra restricción");
-                                            cl.addView(newRes, lpNew);
-                                            set.clone(cl);
-                                            set.connect(newRes.getId(),ConstraintSet.TOP, idlast, ConstraintSet.BOTTOM);
-                                            set.connect(newRes.getId(),ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 40);
-                                            set.applyTo(cl);
-                                            int copiaContador = contador;
-                                            restriccionesClick(newRes, copiaContador);
-
-
-                                        } catch (Exception err) {
-                                            Button newRes = new Button(InsertRestrictions.this);
-                                            ConstraintLayout.LayoutParams lpNew = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
-                                            newRes.setId(lid);
-                                            lid++;
-                                            newRes.setText("Seleccionar otra restricción");
-                                            cl.addView(newRes, lpNew);
-                                            set.clone(cl);
-                                            set.connect(newRes.getId(),ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
-                                            set.connect(newRes.getId(),ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 40);
-                                            set.applyTo(cl);
-                                            int copiaContad = contador;
-                                            restriccionesClick(newRes, copiaContad);
+                                            idCadaRestriccion.add(idCadaPalabra);
                                         }
-                                    }
-                                    Guardar.add(idCadaRestriccion);
-                                    Log.d(TAG, Guardar.toString());
-                                });
-                                contador++;
-                            }
+                                    } catch (Exception err) { }
+                                }
+                                Guardar.add(idCadaRestriccion);
+                                contadorAsincrono++;
+                            });
+                            contador++;
                         }
-                    } catch (InterruptedException interruptedException) {
-                        interruptedException.printStackTrace();
+                        Lugares.add(Lugar);
+                    }
+                    if (document.getData().get("Mun") != null) {
+                        List<String> MUNs = (List<String>) document.getData().get("Mun");
+                        ArrayList<String> Lugar = new ArrayList<>();
+                        for (int i3 = 0; i3 < MUNs.size(); i3++) {
+                            Lugar.add(MUNs.get(i3));
+                            ConstraintSet set = new ConstraintSet();
+                            TextView restriction = new TextView(InsertRestrictions.this);
+                            restriction.setId(lid);
+                            lid++;
+                            ConstraintLayout.LayoutParams lp3 = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
+                            restriction.setText("Municipio: " + MUNs.get(i3));
+                            restriction.setTextSize(17);
+                            restriction.setTextColor(Color.parseColor("#BBBBBB"));
+                            layoutGeneral.addView(restriction, lp3);
+                            set.clone(layoutGeneral);
+                            if (lid != -1)
+                                set.connect(restriction.getId(), ConstraintSet.TOP, lid - 2, ConstraintSet.BOTTOM, 20);
+                            else
+                                set.connect(restriction.getId(), ConstraintSet.TOP, logout.getId(), ConstraintSet.BOTTOM, 20);
+
+                            set.applyTo(layoutGeneral);
+
+                            ScrollView scrollView = new ScrollView(InsertRestrictions.this);
+                            scrollView.setId(lid);
+                            lid++;
+                            ConstraintLayout.LayoutParams sclp = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, 500);
+                            layoutGeneral.addView(scrollView, sclp);
+                            set.clone(layoutGeneral);
+                            set.connect(scrollView.getId(), ConstraintSet.TOP, restriction.getId(), ConstraintSet.BOTTOM, 20);
+                            set.applyTo(layoutGeneral);
+
+                            ConstraintLayout cl = new ConstraintLayout(InsertRestrictions.this);
+                            cl.setId(lid);
+                            lid++;
+                            ConstraintLayout.LayoutParams cllp = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, 500);
+                            layoutGeneral.addView(cl, cllp);
+                            set.clone(layoutGeneral);
+                            set.connect(cl.getId(), ConstraintSet.TOP, scrollView.getId(), ConstraintSet.TOP);
+                            set.connect(cl.getId(), ConstraintSet.BOTTOM, scrollView.getId(), ConstraintSet.BOTTOM);
+                            set.connect(cl.getId(), ConstraintSet.END, scrollView.getId(), ConstraintSet.END);
+                            set.connect(cl.getId(), ConstraintSet.START, scrollView.getId(), ConstraintSet.START);
+                            set.applyTo(layoutGeneral);
+
+                            cls.add(cl);
+
+                            ImageButton deleteButton = new ImageButton(InsertRestrictions.this);
+                            ConstraintLayout.LayoutParams lpButton = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
+                            deleteButton.setId(lid);
+                            lid++;
+                            deleteButton.setImageResource(R.drawable.delete);
+                            layoutGeneral.addView(deleteButton, lpButton);
+                            set.clone(layoutGeneral);
+                            set.connect(deleteButton.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END);
+                            set.connect(deleteButton.getId(), ConstraintSet.TOP, restriction.getId(), ConstraintSet.TOP);
+                            set.connect(deleteButton.getId(), ConstraintSet.BOTTOM, restriction.getId(), ConstraintSet.BOTTOM);
+                            set.applyTo(layoutGeneral);
+
+                            int fila = contador;
+                            deleteClick(deleteButton, cl, fila);
+
+                            Button newRes = new Button(InsertRestrictions.this);
+                            ConstraintLayout.LayoutParams lpNew = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
+                            newRes.setId(lid);
+                            lid++;
+                            newRes.setText("Seleccionar otra restricción para " + MUNs.get(i3));
+                            newRes.setTextSize(10);
+                            layoutGeneral.addView(newRes, lpNew);
+                            set.clone(layoutGeneral);
+                            set.connect(newRes.getId(), ConstraintSet.TOP, cl.getId(), ConstraintSet.BOTTOM);
+                            set.connect(newRes.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 20);
+                            set.connect(newRes.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, 20);
+                            set.applyTo(layoutGeneral);
+                            int copiaContador = contador;
+                            restriccionesClick(newRes, cl, copiaContador, emailUse);
+
+                            String mun = MUNs.get(i3);
+
+                            ArrayList<ArrayList<Integer>> idCadaRestriccion = new ArrayList<ArrayList<Integer>>();
+
+                            CollectionReference dbMUN = db.collection("Municipios").document(mun).collection("Restricciones");
+                            dbMUN.get().addOnCompleteListener(task1 -> {
+                                if (task1.isSuccessful()) {
+                                    List<DocumentSnapshot> documents = task1.getResult().getDocuments();
+                                    int idlast = -1;
+                                    ConstraintSet setIn = new ConstraintSet();
+                                    try {
+                                        DocumentSnapshot totry = documents.get(0);
+                                        for (int finalI = 0; finalI < documents.size(); finalI++) {
+                                            boolean firstIn = true;
+
+                                            ArrayList<Integer> idCadaPalabra = new ArrayList<Integer>();
+                                            for (int j = 0; j < documents.get(finalI).getData().size(); j++) {
+
+                                                if ((String) documents.get(finalI).getData().get(Integer.toString(j)) != null) {
+                                                    TextView restrictions = new TextView(InsertRestrictions.this);
+                                                    restrictions.setId(lid);
+
+                                                    ConstraintLayout.LayoutParams lpRes = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
+
+                                                    restrictions.setText((String) documents.get(finalI).getData().get(Integer.toString(j)));
+                                                    restrictions.setTextSize(17);
+                                                    restrictions.setTextColor(Color.parseColor("#BBBBBB"));
+                                                    cl.addView(restrictions, lpRes);
+                                                    setIn.clone(cl);
+
+                                                    if (idlast == -1) {
+                                                        setIn.connect(restrictions.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
+                                                        setIn.connect(restrictions.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 50);
+                                                        firstIn = false;
+                                                    } else {
+                                                        if (firstIn) {
+                                                            setIn.connect(restrictions.getId(), ConstraintSet.TOP, idlast, ConstraintSet.BOTTOM);
+                                                            setIn.connect(restrictions.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 50);
+                                                            firstIn = false;
+                                                        } else {
+                                                            setIn.connect(restrictions.getId(), ConstraintSet.START, idlast, ConstraintSet.END);
+                                                            setIn.connect(restrictions.getId(), ConstraintSet.TOP, idlast, ConstraintSet.TOP);
+                                                            setIn.connect(restrictions.getId(), ConstraintSet.BOTTOM, idlast, ConstraintSet.BOTTOM);
+                                                        }
+                                                    }
+                                                } else {
+                                                    EditText restrictions = new EditText(InsertRestrictions.this);
+                                                    restrictions.setId(lid);
+
+                                                    ConstraintLayout.LayoutParams lpRes = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
+
+                                                    restrictions.setText((String) documents.get(finalI).getData().get("data" + j));
+                                                    restrictions.setTextSize(17);
+                                                    restrictions.setTextColor(Color.parseColor("#BBBBBB"));
+                                                    cl.addView(restrictions, lpRes);
+                                                    setIn.clone(cl);
+
+                                                    if (idlast == -1) {
+                                                        setIn.connect(restrictions.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
+                                                        setIn.connect(restrictions.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 50);
+                                                        firstIn = false;
+                                                    } else {
+                                                        if (firstIn) {
+                                                            setIn.connect(restrictions.getId(), ConstraintSet.TOP, idlast, ConstraintSet.BOTTOM);
+                                                            setIn.connect(restrictions.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 50);
+                                                            firstIn = false;
+                                                        } else {
+                                                            setIn.connect(restrictions.getId(), ConstraintSet.START, idlast, ConstraintSet.END);
+                                                            setIn.connect(restrictions.getId(), ConstraintSet.TOP, idlast, ConstraintSet.TOP);
+                                                            setIn.connect(restrictions.getId(), ConstraintSet.BOTTOM, idlast, ConstraintSet.BOTTOM);
+                                                        }
+                                                    }
+                                                }
+                                                setIn.applyTo(cl);
+
+                                                idlast = lid;
+                                                lid++;
+                                                idCadaPalabra.add(idlast);
+                                            }
+                                            idCadaRestriccion.add(idCadaPalabra);
+                                        }
+
+                                    } catch (Exception err) { }
+                                }
+                                Guardar.add(idCadaRestriccion);
+                                contadorAsincrono++;
+                            });
+                            contador++;
+                        }
+                        Lugares.add(Lugar);
                     }
                 }
             }
         });
+
+        logout.setEnabled(true);
+        saveButton.setEnabled(true);
 
         logout.setOnClickListener(v -> {
             FirebaseAuth.getInstance().signOut();
@@ -652,49 +603,114 @@ public class InsertRestrictions extends AppCompatActivity {
             InsertRestrictions.this.startActivity(myIntent);
         });
 
-        button.setOnClickListener(v -> {
+        saveButton.setOnClickListener(v -> {
+            saveButton.setEnabled(false);
+            logout.setEnabled(false);
+            reestructurar();
+            Log.d(TAG,Lugares.toString());
+            int nrestriccion = 0;
 
+            for(int lugar = 0; lugar < Lugares.size(); lugar++){
+                String collection = "";
+                if(lugar == 0)
+                    collection = "CCAA";
+                else if(lugar == 1)
+                    collection = "Provincias";
+                else if(lugar == 2)
+                    collection = "Municipios";
+                for(int zona = 0; zona < Lugares.get(lugar).size(); zona++){
+                    CollectionReference colRefCCAA = db.collection(collection).document(Lugares.get(lugar).get(zona)).collection("Restricciones");
+                    int finalNrestriccion = nrestriccion;
+                    String finalCollection = collection;
+                    int finalLugar = lugar;
+                    int finalZona = zona;
+                    colRefCCAA.get().addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            List<DocumentSnapshot> documents = task.getResult().getDocuments();
+                            if(documents.size()>0){
+                                int len = documents.size();
+                                for(int i = 0; i < len; i++){
+                                    WriteBatch batch = db.batch();
+                                    DocumentReference deleteRef = db.collection(finalCollection).document(Lugares.get(finalLugar).get(finalZona)).collection("Restricciones").document("r" + i);
+                                    batch.delete(deleteRef);
+                                    batch.commit().addOnCompleteListener(task1 -> {
+                                        insercionDatos(finalCollection,Lugares.get(finalLugar).get(finalZona),finalNrestriccion);
+                                    });
+                                }
+                            }
+                            else{
+                                Log.d(TAG, finalCollection + ", " + Lugares.get(finalLugar).get(finalZona) + " Esto vacio");
+                                insercionDatos(finalCollection,Lugares.get(finalLugar).get(finalZona),finalNrestriccion);
+                            }
+                        }
+                    });
+                    nrestriccion++;
+                }
+            }
+            AlertDialog.Builder completo = new AlertDialog.Builder(InsertRestrictions.this);
+            completo.setMessage("Restricciones asignadas.");
+            completo.setPositiveButton("Aceptar", null);
+
+            AlertDialog dialog = completo.create();
+            dialog.show();
+            saveButton.setEnabled(true);
+            logout.setEnabled(true);
         });
+    }
+
+    private void reestructurar(){
+        ArrayList<ArrayList<ArrayList<Integer>>> aux = new ArrayList<>(cls.size());
+        for(int i=0; i<cls.size(); i++){
+            aux.add(new ArrayList<>());
+        }
+        for(int i=0; i<cls.size(); i++){
+            if(Guardar.get(i).size() > 0){
+                for(int j=0; j<cls.size(); j++){
+                    if(cls.get(j).findViewById(Guardar.get(i).get(0).get(0))!=null){
+                        Log.d(TAG, j + "");
+                        aux.set(j,Guardar.get(i));
+                    }
+                }
+            }
+        }
+        Guardar = aux;
+        Log.d(TAG, Guardar.toString());
     }
 
     private void deleteClick(ImageButton button, ConstraintLayout cl, int fila){
         button.setOnClickListener(v -> {
-            Log.d(TAG, Integer.toString(fila) + "Fila");
+            reestructurar();
             cl.removeAllViewsInLayout();
             Guardar.remove(fila);
             Guardar.add(fila,new ArrayList<ArrayList<Integer>>());
-            ConstraintSet set = new ConstraintSet();
-            Button newRes = new Button(InsertRestrictions.this);
-            ConstraintLayout.LayoutParams lpNew = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT);
-            newRes.setId(lid);
-            lid++;
-            newRes.setText("Seleccionar otra restricción");
-            cl.addView(newRes, lpNew);
-            set.clone(cl);
-            set.connect(newRes.getId(),ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
-            set.connect(newRes.getId(),ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 40);
-            set.applyTo(cl);
-            restriccionesClick(newRes, fila);
-            Log.d(TAG, Guardar.toString() + "Se intento");
         });
     }
 
-    private void restriccionesClick(Button newRes, int fila){
+    private void restriccionesClick(Button newRes, ConstraintLayout cl, int fila, String emailUser){
         newRes.setOnClickListener(v -> {
+            reestructurar();
             DocumentReference restriccionesLista = db.collection("Listas").document("Restricciones");
             restriccionesLista.get().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
                         ArrayList Rcast = (ArrayList) document.getData().get("r");
-                        String[] R = new String[Rcast.size()];
+                        String[] R = new String[Rcast.size()+1];
                         for(int i=0; i<Rcast.size(); i++)
                             R[i] = Rcast.get(i).toString();
+                        R[Rcast.size()] = "Insertar nueva restricción";
                         AlertDialog.Builder opciones = new AlertDialog.Builder(InsertRestrictions.this);
                         opciones.setTitle("Selecciones una restricción");
                         opciones.setSingleChoiceItems(R, -1, (dialog, which) -> {
-                            insertNewRestriction(R[which],newRes, fila);
-                            dialog.dismiss();
+                            if(R[which].equals("Insertar nueva restricción")){
+                                Intent insertIntent = new Intent(InsertRestrictions.this, NewRestriction.class).putExtra("email", emailUser);
+                                InsertRestrictions.this.startActivity(insertIntent);
+                                dialog.dismiss();
+                            }
+                            else {
+                                insertNewRestriction(R[which], cl, fila);
+                                dialog.dismiss();
+                            }
                         });
                         opciones.setNeutralButton("Cancel", (dialog, which) -> { });
 
@@ -706,14 +722,13 @@ public class InsertRestrictions extends AppCompatActivity {
         });
     }
 
-    private void insertNewRestriction(String restriccion, Button newRes, int fila){
+    private void insertNewRestriction(String restriccion, ConstraintLayout cl, int fila){
         DocumentReference nuevaRestriccion = db.collection("Restricciones").document(restriccion);
         nuevaRestriccion.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 DocumentSnapshot document = task.getResult();
                 if (document.exists()) {
                     ArrayList<Integer> inputs = new ArrayList<>();
-                    ConstraintLayout cl = (ConstraintLayout) newRes.getParent();
                     ConstraintSet set = new ConstraintSet();
                     boolean first = true;
                     for(int i = 0; i < document.getData().size(); i++){
@@ -727,9 +742,12 @@ public class InsertRestrictions extends AppCompatActivity {
                             texto.setTextColor(Color.parseColor("#BBBBBB"));
                             cl.addView(texto, lp);
                             set.clone(cl);
-                            ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) newRes.getLayoutParams();
+                            Log.d(TAG,cl.getChildAt(cl.getChildCount()-1).getId() + "TAMAÑO");
                             if (first) {
-                                set.connect(texto.getId(), ConstraintSet.TOP, params.topToBottom, ConstraintSet.BOTTOM);
+                                if(cl.getChildCount()<=1)
+                                    set.connect(texto.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
+                                else
+                                    set.connect(texto.getId(), ConstraintSet.TOP, cl.getChildAt(cl.getChildCount()-2).getId(), ConstraintSet.BOTTOM);
                                 set.connect(texto.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 50);
                                 first = false;
                             } else {
@@ -737,7 +755,6 @@ public class InsertRestrictions extends AppCompatActivity {
                                 set.connect(texto.getId(), ConstraintSet.TOP, lid-1, ConstraintSet.TOP);
                                 set.connect(texto.getId(), ConstraintSet.BOTTOM, lid-1, ConstraintSet.BOTTOM);
                             }
-                            set.connect(newRes.getId(), ConstraintSet.TOP, texto.getId(), ConstraintSet.BOTTOM);
                         }
                         else{
                             EditText texto = new EditText(InsertRestrictions.this);
@@ -748,9 +765,13 @@ public class InsertRestrictions extends AppCompatActivity {
                             texto.setTextColor(Color.parseColor("#BBBBBB"));
                             cl.addView(texto, lp);
                             set.clone(cl);
-                            ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) newRes.getLayoutParams();
+
+                            Log.d(TAG,cl.getChildAt(cl.getChildCount()-1).getId() + "TAMAÑO");
                             if (first) {
-                                set.connect(texto.getId(), ConstraintSet.TOP, params.topToBottom, ConstraintSet.BOTTOM);
+                                if(cl.getChildCount()<=1)
+                                    set.connect(texto.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
+                                else
+                                    set.connect(texto.getId(), ConstraintSet.TOP, cl.getChildAt(cl.getChildCount()-2).getId(), ConstraintSet.BOTTOM);
                                 set.connect(texto.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 50);
                                 first = false;
                             } else {
@@ -758,7 +779,6 @@ public class InsertRestrictions extends AppCompatActivity {
                                 set.connect(texto.getId(), ConstraintSet.TOP, lid-1, ConstraintSet.TOP);
                                 set.connect(texto.getId(), ConstraintSet.BOTTOM, lid-1, ConstraintSet.BOTTOM);
                             }
-                            set.connect(newRes.getId(), ConstraintSet.TOP, texto.getId(), ConstraintSet.BOTTOM);
                         }
                         inputs.add(lid);
                         lid++;
@@ -770,5 +790,23 @@ public class InsertRestrictions extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private void insercionDatos(String collection, String document, int n){
+        for(int i = 0; i < Guardar.get(n).size(); i++){
+            DocumentReference docRef = db.collection(collection).document(document).collection("Restricciones").document("r"+ i);
+            Map<String, Object> restriccion = new HashMap<>();
+            for(int j = 0; j < Guardar.get(n).get(i).size(); j++){
+                if(cls.get(n).findViewById(Guardar.get(n).get(i).get(j)).getClass().getName().equals("android.widget.TextView")){
+                    TextView v = cls.get(n).findViewById(Guardar.get(n).get(i).get(j));
+                    restriccion.put(Integer.toString(j), v.getText().toString());
+                }else if(cls.get(n).findViewById(Guardar.get(n).get(i).get(j)).getClass().getName().equals("android.widget.EditText")){
+                    EditText v = cls.get(n).findViewById(Guardar.get(n).get(i).get(j));
+                    String data = "data"+j;
+                    restriccion.put(data, v.getText().toString());
+                }
+            }
+            docRef.set(restriccion).addOnCompleteListener(task -> {Log.d(TAG, "Agregado");});
+        }
     }
 }

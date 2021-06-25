@@ -48,7 +48,8 @@ public class loginActivity extends AppCompatActivity {
         });
 
         loginButton.setOnClickListener(v -> {
-            if(email.getText()!=null && pass.getText()!=null){
+            loginButton.setEnabled(false);
+            if(email.getText()!=null&&!email.getText().toString().equals("")&&pass.getText()!=null&&!pass.getText().toString().equals("")){
                 mAuth.getInstance().signInWithEmailAndPassword(email.getText().toString(), pass.getText().toString())
                     .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                         @Override
@@ -72,10 +73,22 @@ public class loginActivity extends AppCompatActivity {
 
                                 AlertDialog dialog = error.create();
                                 dialog.show();
+                                loginButton.setEnabled(true);
                             }
                         }
                     });
             }
+            else{
+                AlertDialog.Builder error = new AlertDialog.Builder(loginActivity.this);
+                error.setTitle("Error");
+                error.setMessage("Correo electrónico o contraseña inválido.");
+                error.setPositiveButton("Aceptar", null);
+
+                AlertDialog dialog = error.create();
+                dialog.show();
+                loginButton.setEnabled(true);
+            }
+
         });
 
     }
