@@ -43,7 +43,7 @@
         android:id="@+id/gys"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Guardar y Salir"
+        android:text="Guardar"
         app:layout_constraintEnd_toStartOf="@+id/salir"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/salir" />
@@ -75,19 +75,21 @@
         android:layout_height="24dp"
         android:background="@drawable/delete"
         android:text="Button"
-        app:layout_constraintStart_toStartOf="@+id/scrollView2"
-        app:layout_constraintTop_toBottomOf="@+id/scrollView2" />
+        app:layout_constraintEnd_toEndOf="@+id/scrollView2"
+        app:layout_constraintTop_toTopOf="@+id/scrollView2" />
 
     <ScrollView
         android:id="@+id/scrollView2"
         android:layout_width="379dp"
         android:layout_height="480dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="68dp"
         android:orientation="vertical"
-        app:layout_constraintTop_toBottomOf="@+id/documentN"
-        tools:layout_editor_absoluteX="16dp">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/documentN">
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clnewLines"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -96,11 +98,12 @@
                 android:id="@+id/agregar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="40dp"
                 android:text="Añadir nueva linea a la restriccion"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 
