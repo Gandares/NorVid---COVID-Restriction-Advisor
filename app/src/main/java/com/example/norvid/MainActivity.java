@@ -145,34 +145,6 @@ public class MainActivity extends AppCompatActivity {
         CargandoProv = findViewById(R.id.CargandoProv);
         CargandoMun = findViewById(R.id.CargandoMun);
 
-        /*List<String> ccaas = Arrays.asList(
-                "Castilla y León",
-                "Andalucía",
-                "Castilla-La Mancha",
-                "Aragón",
-                "Extremadura",
-                "Cataluña",
-                "Galicia",
-                "Comunidad Valenciana",
-                "Región de Murcia",
-                "Principado de Asturias",
-                "Comunidad Foral de Navarra",
-                "Comunidad de Madrid",
-                "Canarias",
-                "País Vasco",
-                "Cantabria",
-                "La Rioja",
-                "Islas Baleares",
-                "Ceuta",
-                "Melilla"
-        );
-
-        Map<String, Object> data = new HashMap<>();
-        data.put("lista", ccaas);
-        data.put("len", 50);
-
-        db.collection("Listas").document("CCAA").set(data);*/
-
         // set all properties of LocationRequest
         locationRequest = LocationRequest.create();
         // How often does the location check occur when set to the most frequent update
@@ -222,37 +194,55 @@ public class MainActivity extends AppCompatActivity {
             return navigation(item);
         });
 
+        db.collection("Listas").document("CCAA").get()
+            .addOnSuccessListener(documentSnapshot -> {
+                ArrayList<String> ccaaList = (ArrayList<String>) documentSnapshot.getData().get("lista");
+                String[] arrayAdapter = new String[ccaaList.size()];
+                for (int i = 0; i < ccaaList.size(); i++)
+                    arrayAdapter[i] = ccaaList.get(i);
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, arrayAdapter);
+                ccaaView.setAdapter(adapter);
+
+                ccaaView.setOnItemClickListener((parent, view, position, id) -> {
+                    CCAAViewText = parent.getItemAtPosition(position).toString();
+                    comunidadAutonoma = CCAAViewText;
+                });
+            });
+
+        db.collection("Listas").document("Provincias").get()
+            .addOnSuccessListener(documentSnapshot -> {
+                ArrayList<String> provList = (ArrayList<String>) documentSnapshot.getData().get("lista");
+                String[] arrayAdapter = new String[provList.size()];
+                for (int i = 0; i < provList.size(); i++)
+                    arrayAdapter[i] = provList.get(i);
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, arrayAdapter);
+                ProvView.setAdapter(adapter);
+
+                ProvView.setOnItemClickListener((parent, view, position, id) -> {
+                    ProvViewText = parent.getItemAtPosition(position).toString();
+                    provincia = ProvViewText;
+                });
+            });
+
+
+        db.collection("Listas").document("Municipios").get()
+            .addOnSuccessListener(documentSnapshot -> {
+                ArrayList<String> munList = (ArrayList<String>) documentSnapshot.getData().get("lista");
+                String[] arrayAdapter = new String[munList.size()];
+                for (int i = 0; i < munList.size(); i++)
+                    arrayAdapter[i] = munList.get(i);
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, arrayAdapter);
+                MunView.setAdapter(adapter);
+
+                MunView.setOnItemClickListener((parent, view, position, id) -> {
+                    MunViewText = parent.getItemAtPosition(position).toString();
+                    municipio = MunViewText;
+                });
+            });
+
+
         loadButton.setOnClickListener(v -> showData());
 
-        String[] Municipios = new String[]{"Ababuj", "Tacoronte", "San Cristóbal de La Laguna", "Adeje", "San Sebastián"}; // Traer de la base de datos
-
-        ArrayAdapter<String> adaptermun = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, Municipios);
-        MunView.setAdapter(adaptermun);
-
-        MunView.setOnItemClickListener((parent, view, position, id) -> {
-            MunViewText = parent.getItemAtPosition(position).toString();
-            municipio = MunViewText;
-        });
-
-        String[] Provincias = new String[]{"Leon", "Zamora", "Salamanca", "Lugo"}; // Traer de la base de datos
-
-        ArrayAdapter<String> adapterprov = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, Provincias);
-        ProvView.setAdapter(adapterprov);
-
-        ProvView.setOnItemClickListener((parent, view, position, id) -> {
-            ProvViewText = parent.getItemAtPosition(position).toString();
-            provincia = ProvViewText;
-        });
-
-        String[] Comunidades = new String[]{"Canarias", "Andorra", "Albania", "Prueba", "Alemania"}; // Traer de la base de datos
-
-        ArrayAdapter<String> adapterccaa = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, Comunidades);
-        ccaaView.setAdapter(adapterccaa);
-
-        ccaaView.setOnItemClickListener((parent, view, position, id) -> {
-            CCAAViewText = parent.getItemAtPosition(position).toString();
-            comunidadAutonoma = CCAAViewText;
-        });
     }
 
     @Override
