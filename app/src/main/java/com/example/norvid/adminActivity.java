@@ -253,7 +253,7 @@ public class adminActivity extends AppCompatActivity {
             else{
                 AlertDialog.Builder error = new AlertDialog.Builder(adminActivity.this);
                 error.setTitle("Error");
-                error.setMessage("Rellenar los campos de email y contraseña");
+                error.setMessage("Rellene los campos de correo electrónico y contraseña");
                 error.setPositiveButton("Aceptar", null);
 
                 AlertDialog dialog = error.create();

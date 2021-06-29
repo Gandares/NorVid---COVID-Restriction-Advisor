@@ -705,12 +705,11 @@ public class InsertRestrictions extends AppCompatActivity {
                             if(R[which].equals("Insertar nueva restricción")){
                                 Intent insertIntent = new Intent(InsertRestrictions.this, NewRestriction.class).putExtra("email", emailUser);
                                 InsertRestrictions.this.startActivity(insertIntent);
-                                dialog.dismiss();
                             }
                             else {
                                 insertNewRestriction(R[which], cl, fila);
-                                dialog.dismiss();
                             }
+                            dialog.dismiss();
                         });
                         opciones.setNeutralButton("Cancel", (dialog, which) -> { });
 

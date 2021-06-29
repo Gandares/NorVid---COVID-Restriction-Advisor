@@ -273,10 +273,7 @@ public class MainActivity extends AppCompatActivity {
             Geocoder geocoder = new Geocoder(MainActivity.this);
 
             List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-            // getCountryName, getLocality, getAddressLine
-            /*prov.setText(addresses.get(0).getSubAdminArea());
-            mun.setText(addresses.get(0).getLocality());
-            ccaa.setText(addresses.get(0).getAdminArea());*/
+
             if(MunViewText == null || MunViewText.isEmpty())
                 municipio = addresses.get(0).getLocality();
             if(ProvViewText == null || ProvViewText.isEmpty())
@@ -307,7 +304,7 @@ public class MainActivity extends AppCompatActivity {
                 layout.removeView(r);
             }
         }
-        if(!infos.isEmpty()){
+        if(!infosProv.isEmpty()){
             ConstraintLayout layout = (ConstraintLayout) CargandoProv.getParent();
             for(TextView r : infosProv){
                 layout.removeView(r);

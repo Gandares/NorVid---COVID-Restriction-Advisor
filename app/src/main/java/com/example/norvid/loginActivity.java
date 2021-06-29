@@ -81,7 +81,7 @@ public class loginActivity extends AppCompatActivity {
             else{
                 AlertDialog.Builder error = new AlertDialog.Builder(loginActivity.this);
                 error.setTitle("Error");
-                error.setMessage("Correo electrónico o contraseña inválido.");
+                error.setMessage("Rellene los campos de correo electrónico y contraseña.");
                 error.setPositiveButton("Aceptar", null);
 
                 AlertDialog dialog = error.create();
